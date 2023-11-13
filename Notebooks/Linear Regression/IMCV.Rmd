@@ -1,0 +1,178 @@
+---
+title: "Linear Regression: IMCV dataset"
+subtitle: 'INE - S.G. Difusión'
+author: "David Pérez Ros"
+date: "noviembre 2023"
+output: 
+  rmdformats::readthedown:
+
+  
+
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción
+
+## dataset
+
+En el siguiente dataset disponemos de datos por Comunidades Autónomas de
+las nueve **dimensiones relativas a la calidad de vida que componen el
+Índice Multidimensional de Calidad de Vida (IMCV)**, una estadística con
+carácter experimental. Datos correspondientes al año 2020.
+
+Concretamente tenemos las siguietnes variables:
+
+-   **indice_total**: Índice multidimensional de calidad de vida
+    teniendo en cuenta las nueve dimensiones.
+-   **dim1** : Indicador sobre las condiciones materiales de vida.
+-   **dim2** : Indicador sobre el trabajo.
+-   **dim3** : Indicador sobre la salud.
+-   **dim4** : Indicador sobre la eduación.
+-   **dim5** : Indicador sobre el ocio y relaciones sociales.\
+-   **dim6** : Indicador sobre la seguridad física y personal.\
+-   **dim7** : Indicador sobre la gobernanza y los derechos básicos.\
+-   **dim8** : Indicador sobre el entorno y el medioambiente.
+-   **CCAA**: Comunidades Autónomas.
+
+Los datos relativos a este estudio corresponden, como ya se ha
+comentado, a la estadística experimental sobre el **Índice
+Multidimensional de Calidad de Vida (IMCV)**. Se construye a partir de
+los indicadores de calidad del INE, que ofrecen una visión panorámica
+(multidimensional) de la calidad de vida en España, mediante la elección
+de un conjunto amplio pero limitado de indicadores (actualmente 60) que
+cubren nueve dimensiones usadas para describir la calidad de vida.
+
+**Nota**: Notar que en este dataset no se tiene la variable **dim9** ya
+que en ese caso el ajuste de la regresión sería prefecto puesto que la
+variable **indice_total** es la media artimética de las 9 dimensiones.
+
+## Descripción del trabajo a realizar
+
+**(Esto irá en la web de explica)** Se pretende hacer una regresión
+lineal que explique el índice total en función de las dimensiones (sin
+tener en centa la var. comunidad autónoma).
+
+## Técncnica Estadística
+
+El objetivo es realizar una regresión lineal múltiple para predecir la
+variable **indice_total** en función de las demás variables (**dim1,...,
+dim8**). Para ver su ajuste miraremos los gráficos pertinentes y las
+medidas que se derivan de la regresión.
+
+# Análisis Exploratorio (EDA[^1])
+
+[^1]: EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
+    relativos en los que se exploran las variables para tener una idea
+    de que forma toma el dataset.
+
+
+
+Lo primero de todo vamos a cargar las librearias necesarias para ejecutar el resto del códigio del trabajo:
+
+
+```{r librerias ,warning=FALSE,message=FALSE}
+library(readxl)  # Para leer los excels
+library(knitr)
+
+library(dplyr)
+library(kableExtra)
+
+```
+Ahora leemos los datos del excel correspondientes a la pestaña *"Datos"*.
+
+```{r datos}
+IMCV <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/Datasets/Datos/David/Nuevos/IMCV_nuevo.xlsx",sheet = "Datos")
+```
+
+
+```{r}
+anyNA(IMCV)    #Any missing data
+any(IMCV==0)   # Any value equal to 0
+```
+
+
+
+
+```{r,echo=FALSE}
+mmary_stats <- function(data) {
+  # Inicializa un dataframe vacío para almacenar los resultados
+  result <- data.frame()
+
+  # Itera sobre cada columna del dataframe
+  for (col in colnames(data)) {
+    if (is.numeric(data[[col]])) {
+      # Si la columna es numérica, calcula las estadísticas descriptivas
+      stats <- c(
+        column = col,
+        Min = format(round(min(data[[col]], na.rm = TRUE)), nsmall = 2),
+        Q1 = format(round(quantile(data[[col]], 0.25, na.rm = TRUE)), nsmall = 2),
+        Mean = format(round(mean(data[[col]], na.rm = TRUE)), nsmall = 2),
+        Median = format(round(median(data[[col]], na.rm = TRUE)), nsmall = 2),
+        Q3 =format(round( quantile(data[[col]], 0.75, na.rm = TRUE)), nsmall = 2),
+        Max = format(round(max(data[[col]], na.rm = TRUE)), nsmall = 2))
+
+      result <- rbind(result, stats)
+    }
+    
+  }
+
+  # Establece los nombres de las filas como las medidas
+  colnames(result) <- c("variable","Min", "Q1", "Mean", "Median", "Q3", "Max")
+
+  return(result)
+}
+
+
+# Ejemplo de uso con un data frame 'df'
+# Reemplaza 'df' con el nombre de tu data frame
+result_df <- mmary_stats(IMCV)
+
+# Convierte la salida a una tabla utilizando kable
+kable(result_df, format = "html", caption = "Resumen estadístico de IMCV")
+
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+
+Vemos que no han ningún NA (missing value) en el dataset luego no será necesario realizar ninguna técnica para imputar los missing values o borrar observaciones.
+
+Todas las variables de interés vemos que toman valores en torno a $[90,110]$. Recordar que estas represntan ídnices. Para ninguna de ellas parece haber valores atípicos en relación a los demas luego no parece necesario hacer ningún tipo de ajuste a los datos.
+
+
+
+## Regresión Lineal
+
+
+```{r}
+
+lm<-lm(indice_total~dim1+dim2+dim3+dim4+dim5+dim6+dim7+dim8,IMCV)
+plot(lm)
+
+summary(lm)
+```
+
+
+# Conclusion
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to
+prevent printing of the R code that generated the plot.
