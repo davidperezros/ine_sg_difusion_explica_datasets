@@ -334,7 +334,7 @@ $$\operatorname{Var}\left[\varepsilon_i \mid \mathbf{X}_1=x_1, \ldots, \mathbf{X
 - **Normalidad** : Los errores deben estar distribuidos normalmente, es decir, $\varepsilon_i \sim N(0,\sigma^2)\; \forall i$.
 
 
-Además hay algunas medidas indicadores como el $R^2_adj$ que indican la variabiliad de la variable respueta que es eescplicada por el modelo, siendo mejor el modelo cuanto más grande sea este valor.
+Además hay algunas medidas indicadores como el $R^2\_adj$ que indican la variabiliad de la variable respueta que es eescplicada por el modelo, siendo mejor el modelo cuanto más grande sea este valor.
 
 
 
