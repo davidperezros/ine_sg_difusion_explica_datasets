@@ -8,7 +8,7 @@
         <meta name="author" content="David Pérez Ros" />
     
     
-    <title>Linear Regression:IMCV</title>
+    <title>Regresión Lineal: IMCV</title>
 
         <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1349,12 +1349,12 @@ margin-left: 0 !important;
    </div>
    
         
-      <h1 class="title">Linear Regression:IMCV</h1>
+      <h1 class="title">Regresión Lineal: IMCV</h1>
          <h1 class="subtitle">INE-S.G. Difusión</h1>
    
          <!-- readthedown authors -->
    <div id="sidebar">
-    <h2><a href="#content">Linear Regression:IMCV</a></h2>
+    <h2><a href="#content">Regresión Lineal: IMCV</a></h2>
     <div id="toc">
       <ul>
       <li><a href="#introducción" id="toc-introducción">Introducción</a>
@@ -1371,6 +1371,15 @@ margin-left: 0 !important;
       <li><a href="#hipótesis-y-indicadores-de-bondad" id="toc-hipótesis-y-indicadores-de-bondad">Hipótesis y indicadores
       de bondad</a></li>
       <li><a href="#modelo" id="toc-modelo">Modelo</a></li>
+      <li><a href="#test-de-bonferroni-datos-atípicos" id="toc-test-de-bonferroni-datos-atípicos">Test de Bonferroni
+      (datos atípicos)</a></li>
+      <li><a href="#test-homocedasticidad" id="toc-test-homocedasticidad">Test homocedasticidad</a></li>
+      <li><a href="#normalidad-de-residuos" id="toc-normalidad-de-residuos">Normalidad de residuos</a></li>
+      <li><a href="#test-linealidad" id="toc-test-linealidad">Test
+      linealidad</a></li>
+      <li><a href="#gráfico-de-influencia-del-modelo-porpuesto" id="toc-gráfico-de-influencia-del-modelo-porpuesto">Gráfico de
+      influencia del modelo porpuesto</a></li>
+      <li><a href="#colinealidad" id="toc-colinealidad">Colinealidad</a></li>
       </ul></li>
       <li><a href="#otras-consideraciones" id="toc-otras-consideraciones">Otras Consideraciones</a></li>
       <li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
@@ -1462,7 +1471,7 @@ regresión.</p>
 <div id="análisis-exploratorio-eda1" class="section level1">
 <h1>Análisis Exploratorio (EDA<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>)</h1>
 <p>Lo primero de todo vamos a cargar las librearias necesarias para
-ejecutar el resto del códigio del trabajo:</p>
+ejecutar el resto del código del trabajo:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(readxl)  <span class="co"># Para leer los excels</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(kableExtra) <span class="co"># Para dar formato a las tablas html</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
@@ -1718,8 +1727,9 @@ hipótesis nula y por tanto aceptar la alternativa, lo cual es buena
 señal.</p>
 <p>No obstante es necesario analizar que se cumplan las hipótesis
 iniciales para poder asegurar que estamos ante un buen modelo.</p>
-<div id="test-de-bonferroni-datos-atípicos" class="section level3">
-<h3>Test de Bonferroni (datos atípicos)</h3>
+</div>
+<div id="test-de-bonferroni-datos-atípicos" class="section level2">
+<h2>Test de Bonferroni (datos atípicos)</h2>
 <p>La idea principal es verificar si los residuos de las observaciones
 son significativamente diferentes de cero. Si un residuo tiene un valor
 studentizado grande en comparación con una distribución t, puede
@@ -1731,8 +1741,8 @@ indiacción de valores atípicos.</p>
 ##     rstudent unadjusted p-value Bonferroni p
 ## 13 -2.616524           0.025751      0.51502</code></pre>
 </div>
-<div id="test-homocedasticidad" class="section level3">
-<h3>Test homocedasticidad</h3>
+<div id="test-homocedasticidad" class="section level2">
+<h2>Test homocedasticidad</h2>
 <p>En términos sencillos, la prueba de Breusch-Pagan evalúa si la
 varianza de los errores en un modelo de regresión es constante o si
 varía a lo largo de los valores de las variables predictoras. Una
@@ -1761,8 +1771,8 @@ regresión.</p>
 parece ser constante a lo largo de los valores de las variables
 predictoras.</p>
 </div>
-<div id="normalidad-de-residuos" class="section level3">
-<h3>Normalidad de residuos</h3>
+<div id="normalidad-de-residuos" class="section level2">
+<h2>Normalidad de residuos</h2>
 <p>El test de Shapiro es una prueba de normalidad que se utiliza para
 evaluar si una muestra proviene de una población con una distribución
 normal. La hipótesis nula del test es que la muestra sigue una
@@ -1777,8 +1787,8 @@ indicando que la muestra no sigue una distribución normal.</p>
 ## W = 0.96095, p-value = 0.563</code></pre>
 <p>Aceptamos la normalidad de los residuos puesto que el <span class="math inline">\(p-value&gt;0.05\)</span>.</p>
 </div>
-<div id="test-linealidad" class="section level3">
-<h3>Test linealidad</h3>
+<div id="test-linealidad" class="section level2">
+<h2>Test linealidad</h2>
 <p>La hipótesis alternativa analiza si la inclusión de términos
 cuadráticos (potencia 2) de las variables predictoras mejora
 significativamente el modelo en comparación con un modelo que solo
@@ -1792,8 +1802,8 @@ incluye términos lineales.</p>
 <p>Aceptamos la linealidad puesto que el <span class="math inline">\(p-value&gt;0.05\)</span>, a un nivel de
 significancia de <span class="math inline">\(\alpha =0.05\)</span>.</p>
 </div>
-<div id="gráfico-de-influencia-del-modelo-porpuesto" class="section level3">
-<h3>Gráfico de influencia del modelo porpuesto</h3>
+<div id="gráfico-de-influencia-del-modelo-porpuesto" class="section level2">
+<h2>Gráfico de influencia del modelo porpuesto</h2>
 <p>En el siguiente gráfico se muestran los residuos studentizados, es
 decir, los residuos transofmrados a una <span class="math inline">\(N(0,1)\)</span>. Es por ello, que debido a el
 cuantil <span class="math inline">\(z_{\alpha/2}=-1.96\; con \;
@@ -1819,8 +1829,8 @@ considerarse en cierto modo atípico. Como no hemos encontrado más
 evidencias de que fuera atípicio lo vamos a dejar así.</li>
 </ul>
 </div>
-<div id="colinealidad" class="section level3">
-<h3>Colinealidad</h3>
+<div id="colinealidad" class="section level2">
+<h2>Colinealidad</h2>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">anova</span>(lm1)</span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ## 
@@ -1851,7 +1861,6 @@ evidencias de que fuera atípicio lo vamos a dejar así.</li>
 ## dim6               -0.7 -0.2  0.3  0.6 -0.3 -0.6  1.0 -0.1 -0.5
 ## dim7               -0.1  0.2 -0.4 -0.2  0.4  0.3 -0.1  1.0  0.0
 ## dim8                0.4 -0.7  0.3 -0.5  0.2  0.0 -0.5  0.0  1.0</code></pre>
-</div>
 </div>
 </div>
 <div id="otras-consideraciones" class="section level1">
