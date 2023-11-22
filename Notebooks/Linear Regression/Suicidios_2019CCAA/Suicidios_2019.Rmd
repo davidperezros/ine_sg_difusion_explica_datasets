@@ -7,6 +7,7 @@ output:
   rmdformats::readthedown:
       code_folding: hide
       cards : TRUE
+      
 
 editor_options:
   markdown:
@@ -111,7 +112,7 @@ Ahora leemos los datos del excel correspondientes a la pestaña *"Datos"* y vemo
 
 
 ```{r datos}
-suicidios <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/Datasets/Datos/David/Nuevos/suicidios2019CCAA.xlsx",sheet = "Datos")
+suicidios <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/David/Nuevos/suicidios2019CCAA.xlsx",sheet = "Datos")
 ```
 
 
