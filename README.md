@@ -16,7 +16,7 @@ El repositorio está organizado en diferentes carpetas con el fin de organizar l
 
 # Créditos
 
-::: {key="value" style="gray"}
+```
 \@book{PerezRos-David2023,
 
     title        = {Dataset project},
@@ -30,4 +30,4 @@ El repositorio está organizado en diferentes carpetas con el fin de organizar l
     url          = {})
 
 }
-:::
+```
