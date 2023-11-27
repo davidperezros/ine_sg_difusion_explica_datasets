@@ -1,0 +1,96 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-27"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{r}
+#El obejtivo de este script es procesar los microdatos de la EVC 2019 transversal para dejar 
+# unas variables y unos datos adecuados para realizar una regresión logística
+
+
+#Librería tratamiento dataframes
+library(dplyr)
+
+
+
+
+#Microdatos
+#Fichero Personas
+datos_Fichero_P <- read.csv("/Users/davpero/Desktop/Trial/esudb19p.csv", sep=",")
+#Fichero Hogares
+datos_Fichero_H <- read.csv("/Users/davpero/Desktop/Trial/esudb19h.csv", sep=",")
+
+#Para quitar los dos últimos dígitos dividimos entre 100, quedándonos solo con la parte entera:
+datos_Fichero_P$HB030 = datos_Fichero_P$PB030 %/% 100
+
+datos_conjuntos <- merge(x=datos_Fichero_P, y=datos_Fichero_H, by="HB030")
+datos_conjuntos$MSE <- ifelse(datos_conjuntos$PT190 < datos_conjuntos$HS120, 1, 0)
+cat("El número de personas que han mejorado su situación económica es de", nrow(filter(datos_conjuntos, MSE == 1)), ". Mientras que el resto,", nrow(filter(datos_conjuntos, MSE == 0)), ", no han mejorado su situación económica. \n")
+cat("El número de valores missing de la variables MSE es", sum(is.na(datos_conjuntos$MSE)), "La grandísima mayoría -", sum(is.na(datos_conjuntos$PT190)), "- se deben a los valores missing que presentaba la variable PT190.")
+
+#Creamos un pequeño dataset con las variables que vamos a utilizar:
+datos1 = datos_conjuntos[,c("MSE","PB040","PB190","PE040","PB140")]
+
+
+
+
+
+
+
+datos1 <- datos1 %>%
+  mutate(PE040 = case_when(
+    PE040 == 100 ~ 0,  #Educacion primaria nivel bajo
+    PE040 == 200 ~ 0, #Educacion media hasta abajo
+    PE040 == 300 ~ 1,
+    PE040 == 353 ~ 1,
+    PE040 == 344 ~ 1,
+    PE040 == 354 ~ 1,
+    PE040 == 400 ~ 1,
+    PE040 == 450 ~ 1,
+    PE040 == 500 ~ 2, # Educación superior
+    TRUE ~ PE040
+  ))
+
+
+#Cambiamos el nombre de las variables para que quede más claro lo que vamos a hacer:
+datos1 = rename(datos1, Factor_de_elevacion = PB040, Estado_civil = PB190,Ano_Nacimiento=PB140,Nivel_Estudios=PE040)
+#Recodificamos la variable Estado_civil: todas las categorias diferentes a 2, recibiran el valor 0; y la categoria 2 (Casado), el valor 1
+datos1$Estado_civil <- ifelse(datos1$Estado_civil != 2, 0, 1)
+
+
+
+
+datos1 <- na.omit(datos1)
+
+
+datos1$Estado_civil<-factor(datos1$Estado_civil)
+datos1$MSE<-factor(datos1$MSE)
+datos1$Nivel_Estudios<-factor(datos1$Nivel_Estudios)
+
+library("writexl")
+write_xlsx(datos1,"/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/Nuevos/ECV.xlsx\\jaja.xlsx")
+
+
+
+lmod2 <- glm(formula = MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios,family = binomial(link = logit),data=datos1)
+summary(lmod2)
+
+library(Epi)
+#The ROC function
+ROC(form=MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios, data=datos1,plot="ROC",lwd=3,cex=1.5)
+
+
+table(datos1$Ano_Nacimiento)
+
+
+
+```
+
