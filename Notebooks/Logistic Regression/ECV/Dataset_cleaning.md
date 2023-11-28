@@ -215,35 +215,14 @@ write_xlsx(datos1, "/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez20
 Este dataset será el que se proporcione para el estudiante para hacer
 sus análisis.
 
-    ## 
-    ## Call:
-    ## glm(formula = MSE ~ Estado_civil + Ano_Nacimiento + Nivel_Estudios, 
-    ##     family = binomial(link = logit), data = datos1)
-    ## 
-    ## Coefficients:
-    ##                  Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     50.045838   4.629712  10.810  < 2e-16 ***
-    ## Estado_civil1    0.262245   0.043303   6.056  1.4e-09 ***
-    ## Ano_Nacimiento  -0.026218   0.002344 -11.183  < 2e-16 ***
-    ## Nivel_Estudios1 -0.006125   0.052153  -0.117    0.907    
-    ## Nivel_Estudios2  0.065640   0.045581   1.440    0.150    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## (Dispersion parameter for binomial family taken to be 1)
-    ## 
-    ##     Null deviance: 16535  on 17462  degrees of freedom
-    ## Residual deviance: 16307  on 17458  degrees of freedom
-    ## AIC: 16317
-    ## 
-    ## Number of Fisher Scoring iterations: 4
+``` r
+lmod2 <- glm(formula = MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios,family = binomial(link = logit),data=datos1)
+summary(lmod2)
 
-![](Dataset_cleaning_files/figure-markdown_github/unnamed-chunk-5-1.png)
+library(Epi)
+#The ROC function
+ROC(form=MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios, data=datos1,plot="ROC",lwd=3,cex=1.5)
 
-    ## 
-    ## 1960 1961 1962 1963 1964 1965 1966 1967 1968 1969 1970 1971 1972 1973 1974 1975 
-    ##  618  639  601  660  643  606  593  655  607  612  636  591  591  581  691  640 
-    ## 1976 1977 1978 1979 1980 1981 1982 1983 1984 1985 1986 1987 1988 1989 1990 1991 
-    ##  631  584  524  510  548  425  435  430  368  348  338  356  336  334  328  318 
-    ## 1992 1993 
-    ##  337  349
+
+table(datos1$Ano_Nacimiento)
+```

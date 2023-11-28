@@ -165,7 +165,7 @@ Este dataset será el que se proporcione para el estudiante para hacer sus anál
 
 
 
-```{r, echo=FALSE }
+```{r, eval=FALSE }
 
 lmod2 <- glm(formula = MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios,family = binomial(link = logit),data=datos1)
 summary(lmod2)
