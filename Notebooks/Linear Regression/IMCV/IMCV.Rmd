@@ -59,19 +59,13 @@ variable **indice_total** es la media artimética de las 9 dimensiones.
 
 ## Descripción del trabajo a realizar
 
-**(Esto irá en la web de explica)** Se pretende hacer una regresión ineal que explique el índice total en función de las dimensiones (sin tener en centa la var. comunidad autónoma).
+**(Esto irá en la web de explica)** Se pretende hacer una regresión lineal que explique el índice total en función de las dimensiones (sin tener en centa la var. comunidad autónoma).
 
   - Hacer un análisis exploratorio.
   - Plantear las hipótesis de una regresión (incluyendo todas variables).
   - Analizar el modelo planteado y su ajuste de bondad.
   - Comprobar hipótesis de regresión.
   - Hacer una conclusión.
-
-## Técncnica Estadística
-
-El objetivo es realizar una regresión lineal múltiple para predecir la
-variable **indice_total** en función de las demás variables (**dim1,...,dim8**). Para ver su ajuste miraremos los gráficos pertinentes y las
-medidas que se derivan de la regresión.
 
 
 
