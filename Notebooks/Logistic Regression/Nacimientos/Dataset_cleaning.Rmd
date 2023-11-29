@@ -36,25 +36,24 @@ library(dplyr)
 
 
 # Microdatos
- load("~/Downloads/datos_partos22/R/MNPpartos_2022.RData")
- datos1 = Microdatos[,c("MULTIPLI","SEMANAS","EDADM","CESAREA","PROMA","NORMA")]
+load("~/Downloads/datos_partos22/R/MNPpartos_2022.RData")
+datos1 <- Microdatos[, c("MULTIPLI", "SEMANAS", "EDADM", "CESAREA", "PROMA", "NORMA")]
 
-# Quitamos observaciones con NA 
- datos1=na.omit(datos1)
- 
-# Seleccionamos CCAA de Navarra, código 31 
-datos1<-datos1 %>% filter(PROMA == 31) #31
+# Quitamos observaciones con NA
+datos1 <- na.omit(datos1)
+
+# Seleccionamos CCAA de Navarra, código 31
+datos1 <- datos1 %>% filter(PROMA == 31) # 31
 
 # Cambiamos niveles de cesarea
-datos1$CESAREA<-as.factor(ifelse(datos1$CESAREA==1,1,0))
+datos1$CESAREA <- as.factor(ifelse(datos1$CESAREA == 1, 1, 0))
 
-datos1 <- datos1 %>% rename (
-    bebes = MULTIPLI,
-    semanas = SEMANAS,
-    edad_madre = EDADM,
-    cesarea = CESAREA,
-    parto_normal = NORMA
-    
+datos1 <- datos1 %>% rename(
+  bebes = MULTIPLI,
+  semanas = SEMANAS,
+  edad_madre = EDADM,
+  cesarea = CESAREA,
+  parto_normal = NORMA
 )
 ```
 
@@ -70,12 +69,9 @@ Con esto nos queda el siguiente dataset.
 
 
 ```{r}
-
-
 # Creamos excel con datos
 library("writexl")
-write_xlsx(datos1, "/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/Nuevos/ECV.xlsx\\jaja.xlsx")
-
+write_xlsx(datos1,"/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/Nuevos/partos.xlsx")
 ```
 
 
@@ -83,19 +79,4 @@ Este dataset será el que se proporcione para el estudiante para hacer sus anál
 
 
 
-
-
-
-```{r, eval=FALSE }
-
-lmod2 <- glm(formula = MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios,family = binomial(link = logit),data=datos1)
-summary(lmod2)
-
-library(Epi)
-#The ROC function
-ROC(form=MSE ~ Estado_civil+Ano_Nacimiento+Nivel_Estudios, data=datos1,plot="ROC",lwd=3,cex=1.5)
-
-
-table(datos1$Ano_Nacimiento)
-```
 
