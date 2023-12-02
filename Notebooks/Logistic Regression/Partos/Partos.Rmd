@@ -23,23 +23,77 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 # message = FALSE para que no muestre mensajes automáticos cuando carga paquetes y demás en el output
 ```
 
+
+
+
+
+```{r}
+
+datos1$CESAREA<-as.factor(ifelse(datos1$CESAREA==1,1,0))
+#1 es con cesarea
+datos1$MULTIPLI<-as.factor(datos1$MULTIPLI)
+datos1$NORMA<-as.factor(datos1$NORMA)
+
+
+
+
+lmod2 <- glm(formula = CESAREA ~ EDADM+SEMANAS+MULTIPLI+NORMA,family = binomial(link = logit),data=datos1)
+summary(lmod2)
+
+library(Epi)
+#The ROC function
+ROC(form=CESAREA ~ EDADM+SEMANAS+MULTIPLI+NORMA, data=datos1,plot="ROC",lwd=3,cex=1.5)
+
+
+table(datos1$Ano_Nacimiento)
+
+
+
+
+
+
+library(ggplot2)
+
+datos1 %>% ggplot(aes(x = NORMA)) +  
+  geom_density(aes(group = CESAREA, 
+                   colour = CESAREA, 
+                   fill = CESAREA),
+               alpha = 0.2)
+
+datos1 %>% ggplot(aes(x = EDADM)) +  
+  geom_density(aes(group = CESAREA, 
+                   colour = CESAREA, 
+                   fill = CESAREA),
+               alpha = 0.2)
+
+datos1 %>% ggplot(aes(x = EDADM)) +  
+  geom_density(aes(group = CESAREA, 
+                   colour = CESAREA, 
+                   fill = CESAREA),
+               alpha = 0.2)
+
+library(klaR)
+partimat(CESAREA ~ SEMANAS+EDADM, data=datos1, method="qda")
+
+
+
+
+
+
+
+
+```
+
+
+
 # Introducción
 
 ## dataset
 
-En este cuaderno vamos a analizar la existencia del llamado *"ascensor
-social"* en España a partir de los microdatos de la Encuesta de
-Condiciones de Vida (ECV) del año 2019. Dicho análisis nos sirve como
+En este cuaderno vamos a analizar  la presencia de una cesárea en un parto a partir de los microdatos de la **Estadística de nacimientos. Movimiento natural de la población.** Concretamente, se han tomado los datos relativos a **partos, 2022** y los relativos a la Comunidad Autónoma de **Navarra**.. Dicho análisis nos sirve como
 excusa para tratar de mostrar en qué consiste una regresión logística y
 cómo llevarla a cabo en R.
 
-En primer lugar, debemos definir qué es eso del "ascensor social" y cómo
-vamos a tratar de analizarlo nosostros. Éste **se define como** la
-posibilidad de ascender o descender de clase social. Aunque podemos
-considerar que la pertenencia a una determinada clase social - si es que
-éstas existen de forma estanca y perfectamente distinguible - se explica
-por una combinación de aspectos: nivel económico, cultural, de estudios,
-etc, nosotros nos vamos a centrar simplemente en el nivel económico.
 
 Ver fichero
 [*Dataset_cleaning.rmd*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/8afaee7bf19634c1d7a0676c81d63ffeaef3def7/Notebooks/Logistic%20Regression/ECV/Dataset_cleaning.md)
@@ -55,7 +109,7 @@ library(readxl) # Para leer los excels
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos1 <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/ECV_microdatos.xlsx", sheet = "Datos")
+datos1 <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/partos.xlsx", sheet = "Datos")
 ```
 
 Concretamente tenemos las siguientes variables:
