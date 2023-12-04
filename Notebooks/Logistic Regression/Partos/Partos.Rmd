@@ -2,7 +2,7 @@
 title: "Regresión Logística: ECV_microdatos"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
-date: "noviembre 2023"
+date: "diciembre 2023"
 output: 
   md_document:
     variant: markdown_github
@@ -27,62 +27,6 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 
 
 
-```{r}
-
-datos1$CESAREA<-as.factor(ifelse(datos1$CESAREA==1,1,0))
-#1 es con cesarea
-datos1$MULTIPLI<-as.factor(datos1$MULTIPLI)
-datos1$NORMA<-as.factor(datos1$NORMA)
-
-
-
-
-lmod2 <- glm(formula = CESAREA ~ EDADM+SEMANAS+MULTIPLI+NORMA,family = binomial(link = logit),data=datos1)
-summary(lmod2)
-
-library(Epi)
-#The ROC function
-ROC(form=CESAREA ~ EDADM+SEMANAS+MULTIPLI+NORMA, data=datos1,plot="ROC",lwd=3,cex=1.5)
-
-
-table(datos1$Ano_Nacimiento)
-
-
-
-
-
-
-library(ggplot2)
-
-datos1 %>% ggplot(aes(x = NORMA)) +  
-  geom_density(aes(group = CESAREA, 
-                   colour = CESAREA, 
-                   fill = CESAREA),
-               alpha = 0.2)
-
-datos1 %>% ggplot(aes(x = EDADM)) +  
-  geom_density(aes(group = CESAREA, 
-                   colour = CESAREA, 
-                   fill = CESAREA),
-               alpha = 0.2)
-
-datos1 %>% ggplot(aes(x = EDADM)) +  
-  geom_density(aes(group = CESAREA, 
-                   colour = CESAREA, 
-                   fill = CESAREA),
-               alpha = 0.2)
-
-library(klaR)
-partimat(CESAREA ~ SEMANAS+EDADM, data=datos1, method="qda")
-
-
-
-
-
-
-
-
-```
 
 
 
@@ -96,7 +40,7 @@ cómo llevarla a cabo en R.
 
 
 Ver fichero
-[*Dataset_cleaning.rmd*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/8afaee7bf19634c1d7a0676c81d63ffeaef3def7/Notebooks/Logistic%20Regression/ECV/Dataset_cleaning.md)
+[*Dataset_cleaning.rmd*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/546d12c723434e97ea605ed45e153680f7be834a/Notebooks/Logistic%20Regression/Partos/Dataset_cleaning.md)
 para ver cómo se han tratado dichos microdatos hasta obtener un conjunto
 de datos adecuado para la regresión logística, y que tomaremos aquí como
 punto de partida.
@@ -109,26 +53,21 @@ library(readxl) # Para leer los excels
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos1 <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/partos.xlsx", sheet = "Datos")
+datos1 <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/Partos.xlsx", sheet = "Datos")
 ```
 
 Concretamente tenemos las siguientes variables:
 
--   **MSE** (Mejora Situación Económica): Variable binaria, 1= ha
-    mejorado la calidad de vida del encuesado respecto a su infancia,
-    0=no ha mejorado. teniendo en cuenta las nueve dimensiones.
--   **Factor_de_elevacion** : Factor de elevación para cada observación
-    respecto a la población total.
--   **Estado_civil** : Estado civil del encuestado. 0=No casado,
-    1=Casado
--   **Nivel_Estudios** : Nivel estudios del encuestado. 0=Nivel bajo,
-    1=Nivel superior
--   **Ano_Nacimiento** : Año de nacimiento del encuestado.
+ - **bebes**: Número de bebés nacidos en el parto. (categórica)
+  - **semanas**: Número de semanas del embarazo.
+  - **edad_madre**:  Edad de la madre en años cumplidos.
+  - **cesarea**: Si se ha llevado a cabo una césarea en el parto (Categórica. 0=no, 1=si).
+  - **parto_normal**: Si el parto transcurrió con normalidad. (Categórica. 1=normal, 2=complicaciones)
 
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer una regresión
-logística que clasifique la variable respuesta *MSE* - Mejora de la Situación Ecnonómica del encuestado respecto a su adolescencia en casa- en función de varios predictores, tanto continuos (*Ano_Nacimiento*) como categóricos (*Estado_civil*, *Nivel_Estudios*).
+logística que clasifique la variable respuesta *cesarea* - si en el parto se efectuo una césarea - en función de varios predictores, tanto continuos (*semanas, edad_madre*) como categóricos (*bebes*).
 
   - Hacer un análisis exploratorio.
   - **IMPORTANTE**: Convertir a factor las variables que lo sean.
@@ -154,8 +93,8 @@ library(ggplot2) # Nice plots
 ```{r porcentaje,out.width="50%",echo=FALSE}
 # Creamos un gráfico de quesito o de sectores para ver qué proporción de personas ha mejorado su situación económica:
 
-datos_quesito <- c(nrow(filter(datos1, MSE == 1)), nrow(filter(datos1, MSE == 0)))
-etiquetas <- c("Ha mejorado su situación", "No ha mejorado")
+datos_quesito <- c(nrow(filter(datos1, cesarea == 1)), nrow(filter(datos1, cesarea == 0)))
+etiquetas <- c("Nacidos por césarea", "Parto natural")
 
 porcentajes <- paste0(round(datos_quesito / sum(datos_quesito) * 100, 1), "%")
 colores <- c("lightgreen", "lightcoral")
@@ -203,10 +142,12 @@ A continuación, para simplificar un poco las cosas, consideremos el
 modelo de regresión logística más sencillo: regresión logística binaria
 simple (una sola covariable):
 
-$$ \begin{align}
+$$ 
+\begin{align}
 P(Y=1)=\frac{1}{1+e^{-(\beta_0 + \beta_1X_1 + ϵ)}}
 \end{align}
 $$
+
 
 
 La interpretación de esta función es muy similar a la de una regresión
@@ -218,20 +159,9 @@ inclinada, mayor capacidad de discriminar entre los dos valores de la
 variable dependiente).
 
 
-```{r,echo=FALSE,out.width="50%"}
-knitr::include_graphics("images/descarga.png")
-```
 
 
 
-Esta imagen, sacada del libro *Análisis de datos en Ciencias Sociales y
-de la Salud III (Pardo et al., 2012)* muestra tres regresiones logísticas
-con el mismo coeficiente , pero distinto poder discriminante (diferente
-): la curva de la izquierda tendría un poder de discriminación perfecto,
-mientras que la de la derecha no discrimina nada (la del medio sería un
-caso intermedio entre los dos extremos). Por lo tanto, podemos decir que
-una covariable será mejor predictora cuanto mayor sea el coeficiente $\beta$ que
-genere. [Aclaración: en la imagen, $\pi_1 = P(Y=1)$]
 
 Si estuviésemos ante una regresión logística múltiple, cada variable
 independiente recibiría una ponderación proporcional a su capacidad para
@@ -301,43 +231,42 @@ Es una medida de bondad porque evalúa qué tan bien puede discriminar un modelo
 **IMPORTANTE**: Convertir a factor las variables que tengan que ser tratadas como tal, de lo contrario R las tratará como numéricas. Además, la variable respuesta debe tener los niveles codificados como $0$ y $1$ para poder usar la funcion `glm`.
 
 ```{r factor}
-datos1$Estado_civil <- as.factor(datos1$Estado_civil)
-datos1$Nivel_Estudios <- as.factor(datos1$Nivel_Estudios)
-datos1$MSE <- as.factor(datos1$MSE)
+datos1$cesarea<-as.factor(datos1$cesarea)
+datos1$bebes<-as.factor(datos1$bebes)
+datos1$parto_normal<-as.factor(datos1$parto_normal)
+
 ```
 
 
 A continuación presentamos tres posibles modelos y posteriormente elegiremos uno de ellos.
 
-  - **lmod1** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica).
-  - **lmod2** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica) y el Estado_civil (categórica).
-  - **lmod3** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica), el Estado_civil (categórica) y el Nivel de Estudios (categórica) y .
+  - **lmod1** : Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación.
+  - **lmod2** :  Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación, número de nacimientos en el parto.
+  - **lmod3** :  Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación, número de nacimientos en el parto y si hubo complicaciones en el parto.
 
 ```{r modelos}
 # lmod1
-lmod1 <- glm(formula = MSE ~ Ano_Nacimiento, family = binomial(link = logit), data = datos1)
+lmod1 <- glm(formula = cesarea ~ edad_madre+semanas, family = binomial(link = logit), data = datos1)
 summary(lmod1)
 
 # lmod2
-lmod2 <- glm(formula = MSE ~ Ano_Nacimiento + Estado_civil, family = binomial(link = logit), data = datos1)
+lmod2 <- glm(formula = cesarea ~ edad_madre+semanas+bebes,family = binomial(link = logit),data=datos1)
 summary(lmod2)
 
 # lmod3
-lmod3 <- glm(formula = MSE ~ Ano_Nacimiento + Estado_civil + Nivel_Estudios, family = binomial(link = logit), data = datos1)
+lmod3 <- glm(formula = cesarea ~ edad_madre+semanas+bebes+parto_normal, family = binomial(link = logit), data = datos1)
 summary(lmod3)
 ```
-
-En este caso, el Modelo 2 tiene el **AIC** más bajo, lo que sugiere que podría ser el mejor ajuste entre los tres modelos. Sin embargo, es importante considerar otros aspectos y realizar pruebas adicionales si es necesario para validar el modelo seleccionado. Por otro lado, en términos de la **Deviance** podemos ver cosas parecidas. 
-Vemos que al *lmod1* si le añadimos la variable *Estado_civil*, la residual variance disminuye lo que parece indicar que está variable es significante. Sin embargo, cuando le añadimos la variable *Nivel_Estudios*, la dismunición de la deviance es muy baja por lo que no parece que sea del todo relevante en función del resto de variables.  
+El tercer modelo tiene el valor más bajo de la **deviance residual**, lo que indica un mejor ajuste del modelo a los datos en comparación con los dos modelos anteriores. Esto sugiere que la inclusión de "parto_normal" mejora la capacidad del modelo para explicar la variabilidad observada en la variable de respuesta. Además, también es el modelo con el valor más bajo para **AIC** luego parece razonable quedarnos con el.
 
 
-Para este modelo vamos a calcular la matriz de confusión y el área ROC.
+Para este modelo vamos a calcular la matriz de confusión y el área ROC. Como punto de corte para clasificar la osbervación como césarea o no, tomamos *p=0.227* (obtenido más abajo al ver la ROC). Es decir, si bajo el modelo una obsaervación presenta una predice una probabildiad de césarea mayor de *0.227*, entonces lo clasificaremos como tal. 
 
 ```{r, eval=FALSE}
 # confusion matrices
-predicted2 <- predict(lmod2, data.frame(Ano_Nacimiento = datos1$Ano_Nacimiento, Estado_civil = datos1$Estado_civil, Nivel_Estudios = datos1$Nivel_Estudios), type = "response")
+predicted3 <- predict(lmod3, data.frame(edad_madre = datos1$edad_madre, semanas = datos1$semanas, bebes = datos1$bebes, parto_normal=datos1$parto_normal), type = "response")
 library(caret)
-confusionMatrix(data = as.factor(ifelse(predicted2 > 0.179, 1, 0)), reference = datos1$MSE)
+confusionMatrix(data = as.factor(ifelse(predicted3 > 0.227, 1, 0)), reference = datos1$cesarea, positive="1")
 ```
 
 
@@ -345,8 +274,8 @@ confusionMatrix(data = as.factor(ifelse(predicted2 > 0.179, 1, 0)), reference = 
 library(Epi)
 # The ROC function
 
-# lmod2
-ROC(form = MSE ~ Estado_civil + Ano_Nacimiento, data = datos1, plot = "ROC", lwd = 3, cex = 1.5)
+# lmod3
+ROC(form = cesarea ~ +semanas+bebes+parto_normal, data = datos1, plot = "ROC", lwd = 3, cex = 1.5)
 
 ```
 Observamos una Especifidad del 62% y una Sensibilidad del 50%. Esto quiere decir que nuestro modelo es mejor evitando falsos positivos, que falsos negativos. Es decir, que es mejor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés. Lo cual es deseable. 
@@ -395,42 +324,10 @@ No obstante, esto es algo muy generalizado que puede que no sea así ya que la s
 
 
 
-## Odds Ratio
 
 
 
-
-```{r}
-library("MASS")
-lda.class.Iris <- lda(MSE ~ Ano_Nacimiento, datos1)
-library("klaR")
-partimat(MSE ~ Ano_Nacimiento + Factor_de_elevacion, datos1, method = "lda")
-
-datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
-  geom_density(
-    aes(
-      group = MSE,
-      colour = MSE,
-      fill = MSE
-    ),
-    alpha = 0.2
-  )
-```
-
-
-```{r}
-datos1 <- na.omit(datos1)
-datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
-  geom_density(
-    aes(
-      group = MSE,
-      colour = MSE,
-      fill = MSE
-    ),
-    alpha = 0.2
-  )
-```
 
 # Conclusiones
 
-Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, no obstante, su tasa de acierto no es excesivamente alta. Dado que la variable respuesta es binaria y el acierto no es muy alto, "a ojo" sería bastante factible clasificar.
+Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, con una tasa de acierto buena. 
