@@ -283,7 +283,7 @@ Para este modelo vamos a calcular la matriz de confusión y el área ROC.
 # confusion matrices
 predicted2 <- predict(lmod2, data.frame(Ano_Nacimiento = datos1$Ano_Nacimiento, Estado_civil = datos1$Estado_civil, Nivel_Estudios = datos1$Nivel_Estudios), type = "response")
 library(caret)
-confusionMatrix(data = as.factor(ifelse(predicted2 > 0.179, 1, 0)), reference = datos1$MSE)
+confusionMatrix(data = as.factor(ifelse(predicted2 > 0.179, 1, 0)), reference = datos1$MSE, positive= "1")
 ```
 
 
@@ -295,7 +295,7 @@ library(Epi)
 ROC(form = MSE ~ Estado_civil + Ano_Nacimiento, data = datos1, plot = "ROC", lwd = 3, cex = 1.5)
 
 ```
-Observamos una Especifidad del 62% y una Sensibilidad del 50%. Esto quiere decir que nuestro modelo es mejor evitando falsos positivos, que falsos negativos. Es decir, que es mejor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés. Lo cual es deseable. 
+Observamos una Especifidad del 50% y una Sensibilidad del 62%. Esto quiere decir que nuestro modelo es mejor evitando falsos negativos, que falsos positivos Es decir, que es peor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés.  
 
 
 Destacar que el elemtno **Ir.eta** que aparece arriba, es el punto de corte de la probabilidad. Es decir, si nuestra regresión logística predice que hay una probabilidad mayor de $0.179$ de que haya mejorado la calidad de vida, nosotros lo clasificamos como que efectivamente ha mejorado y si es menor, lo clasificamos como que no.
