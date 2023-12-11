@@ -6,7 +6,7 @@ Repositorio que conteine todos archivos relativos al proyecto **Datasets** de la
 
 El repositorio está organizado en diferentes carpetas con el fin de organizar los documentos que se contienen en ellas. Vamos a dar una breve descripción de ellas:
 
--   \~\\ **Notebooks**: Contiene los estudios estadísticos para cada dataset según las diferentes técnicas estadísticas. En su interior se encuentran carpetas por cada técnica estadística, conteniendo cada una de ellas el informe de análisis para el pertinente dataset. Estas últimas cartpetas incluyen el informe en formato *.html* (útil para visualizar el informe completo), en formato *.rmd* (sobre el que se ha creado el informe) y en formado *.md* el cual es útil para ver el informe en línea (aunque puede tener distorsiones con determinadas formulas latex). 
+-   \~\\ **Notebooks**: Contiene los estudios estadísticos para cada dataset según las diferentes técnicas estadísticas. En su interior se encuentran carpetas por cada Técnica Estadística, conteniendo cada una de ellas el informe de análisis para el pertinente dataset. Estas últimas cartpetas incluyen el informe en formato *.html* (útil para visualizar el informe completo), en formato *.rmd* (sobre el que se ha creado el informe) y en formato *.md* el cual es útil para ver el informe en línea sobre GitHub (aunque puede tener distorsiones con determinadas formulas latex). 
 -   \~\\**Datasets**: Contiene los ficheros de datos que se incluirán en la web explica con la finalidad de analizar los datos según la técnica estadísitca. En la carpeta de **Notebooks** se encunetran dichos estudios.
 
 | Dataset           | Técnica estadística | Descripción         |
@@ -14,7 +14,7 @@ El repositorio está organizado en diferentes carpetas con el fin de organizar l
 | IMCV              | Regresión           | Lineal              |
 | suicidios2019CCAA | Regresión Lineal    | Lineal              |
 | ECV_microdatos    | Clasificación       | Reg. Logística      |
-
+| Partos            | Clasificación       | Reg. Logística      |
 
 # Créditos
 
