@@ -54,9 +54,13 @@ El objetivo de este estudio será aplicar un Análisis **Cluster** para
 hacer grupos de comunidades autónomas en función de las variables
 **1Ola** y **2Ola**. Concretamente usaremos un cluster jerárquico.
 
-```{r librerias}
+```{r librerias, message=FALSE, warning= FALSE}
 # Librerias
 library(readxl) # Para leer los excels
+library(dendextend) # Para dendogramas
+library(dplyr) # Para tratamiento de dataframes
+library(ggplot2) # Nice plots
+library(stats) # hclust package
 ```
 
 Cargamos entonces el conjunto de datos:
@@ -65,59 +69,8 @@ Cargamos entonces el conjunto de datos:
 datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid.xlsx", sheet = "Datos")
 ```
 
-```{r}
-# Carga de librerías y datos
-library(dendextend)
-
-# Lectura de datos
-
-# Preparación de los datos
-resultado <- datos[, c("1Ola", "2Ola")]
-comunidades <- datos$ccaa
-
-# Dendrograma
-W <- hclust(dist(resultado), method = "single")
-dendrograma <- as.dendrogram(W)
-dendrograma <- set(dendrograma, "labels", comunidades)
-
-plot(dendrograma, horiz = TRUE)
-abline(v = 30, col = "red", lty = 2)
-title("Dendrograma")
-
-```
-
-```{r}
-# Matriz de distancias
-distancias <- dist(resultado)
-matriz_distancias <- as.matrix(distancias)
-df <- as.data.frame(matriz_distancias)
-rownames(df) <- comunidades
-colnames(df) <- comunidades
-print(df)
-
-# Clustering jerárquico
-library(stats)
-resultado_escalado <- scale(resultado)
 
 
-clusters <- hclust(dist(resultado), method = "ward.D2")
-grupos <- cutree(clusters, k = 3)
-
-# Asignación de clusters a las comunidades
-clusters_asignados <- data.frame("Comunidades Autónomas" = comunidades, "Cluster" = grupos)
-print(clusters_asignados)
-
-# Representación gráfica
-plot(resultado_escalado[,1], resultado_escalado[,2], xlab = "Variación interanual durante la primera ola de COVID", ylab = "Variación interanual durante la segunda ola de COVID", main = "Variación interanual de defunciones")
-
-text(resultado_escalado[,1], resultado_escalado[,2], labels = comunidades, pos = 3, col = "black")
-
-points(resultado_escalado[grupos == 1, 1], resultado_escalado[grupos == 1, 2], col = "purple", pch = 19)
-points(resultado_escalado[grupos == 2, 1], resultado_escalado[grupos == 2, 2], col = "blue", pch = 19)
-points(resultado_escalado[grupos == 3, 1], resultado_escalado[grupos == 3, 2], col = "green", pch = 19)
-legend("bottomright", legend = c("Cluster 1", "Cluster 2", "Cluster 3"), col = c("purple", "blue", "green"), pch = 19)
-
-```
 
 ## Descripción del trabajo a realizar
 
@@ -126,10 +79,11 @@ Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
 función a las variables **1Ola** y **2Ola**.
 
 -   Hacer un análisis exploratorio.
--   Plantear diversos modelos según variables incluidas.
--   Compararlos con ANOVA y ROC CURVE.
--   Para el modelo seleccionado, explicar los coeficientes, odds
-    ratio,...
+-   Ver si hay NA's y si es necesario escalar los datos.
+-  Palntear variables sobre las que se van a hacer los cluster.
+-  Elegir Función Distancia y Método de Enlace (o comparar varias).
+-  Interpretar resultados
+
 
 # Análisis Exploratorio (EDA[^1])
 
@@ -140,11 +94,6 @@ función a las variables **1Ola** y **2Ola**.
 Lo primero de todo vamos a cargar las librearias necesarias para
 ejecutar el resto del código del trabajo:
 
-```{r librerias2 ,out.width="50%",echo=FALSE}
-library(dplyr) # Para tratamiento de dataframes
-library(ggplot2) # Nice plots
-library(stats) #hclust package
-```
 
 # Clustering: Cluster Jerárquico
 
@@ -211,34 +160,39 @@ resultados significativos.
 
 ## Formulación
 
-**IMPORTANTE**: Ver que no hay ningún NA en el dataset.
+**IMPORTANTE**: 
+ 
+-   Ver que no hay ningún **NA** en el dataset.
+-    El **escalado** es un paso esencial en la fase de preprocesamiento de datos para los algoritmos de agrupación. Garantiza que cada característica contribuya por igual al proceso de decisión del algoritmo, lo que lleva a resultados de agrupación más precisos e interpretables.
 
 ```{r factor}
-ifelse(sum(is.na(data))==0, print("There is no NA in the dataset."), print("There is some NA in the dataset."))
+ifelse(sum(is.na(data)) == 0, print("There is no NA in the dataset."), print("There is some NA in the dataset."))
 ```
 
-Notar que la distancia más apropiada para usar es la Euclidea ya que ambas variables *1Ola* y *2Ola* son del mismo tipo y corresponden a meses consecutivos, es decir, representan el mismo fenómeno demográfico y en la misma escala. Además como estamos interesados en la diferencia de estas variables a la hora de hacer cluster, esta es la distancia más adecuada.
+Notar que la distancia más apropiada para usar es la Euclidea ya que ambas variables *1Ola* y *2Ola* son del mismo tipo y corresponden a meses consecutivos, es decir, representan el mismo fenómeno demográfico y en la misma escala (una vez hayamos escalado). Además como estamos interesados en la diferencia de estas variables a la hora de hacer cluster, esta es la distancia más adecuada.
 
 En cuanto al método para hacer los clusters, vamos a dejar el que viene por defecto, el complete. Este se basa en medir la distancia entre clústeres como la distancia más larga entre cualquier punto de un clúster y cualquier punto del otro clúster. Menos sensible a valores atípicos, pero puede generar clústeres de tamaño desigual.
 
 ```{r}
-
 # Preparación de los datos
 resultado <- datos[, c("1Ola", "2Ola")]
-rownames(resultado)<-datos$ccaa # Para que nos salgan luego los nombres
+
+resultado <- scale(resultado) #scaling/standardizing
+rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
 comunidades <- datos$ccaa
 
 # Matriz de distancias
 d <- dist(resultado, method = "euclidean")
 
 # Hierarchical clustering using Complete Linkage
-hc1 <- hclust(d, method = "complete" )
+hc1 <- hclust(d, method = "complete")
 
 # Plot the obtained dendrogram
 plot(hc1, cex = 0.6, hang = -1)
+abline(h = 100, col = "red", lty = 2)
 ```
 
-ChatGPT
+
 En el dendrograma mostrado arriba, cada hoja corresponde a una observación. A medida que avanzamos en el árbol, las observaciones similares se combinan en ramas, las cuales a su vez se fusionan a una altura mayor.
 
 La altura de la fusión, representada en el eje vertical, indica la (des) similitud entre dos observaciones. Cuanto mayor sea la altura de la fusión, menos similares son las observaciones. Es importante destacar que las conclusiones sobre la proximidad de dos observaciones solo se pueden inferir en función de la altura donde las ramas que contienen esas dos observaciones se fusionan inicialmente. No podemos usar la proximidad de dos observaciones a lo largo del eje horizontal como criterio de su similitud.
@@ -252,46 +206,94 @@ sub1 <- cutree(hc1, k = 3)
 
 # Number of members in each cluster
 table(sub1)
-
 ```
 
 
 Podemos mostrar los grupos junto al dataframe con la función mutate.
-```{r}
+```{r,fig.align='center'}
+
+# Mostrar Clusters
 datos %>%
   mutate(cluster = sub1) %>%
-  head
-```
-```{r}
-hc2 <- hclust(d, method = "ward.D" )
-hc3 <- hclust(d, method = "average" )
-hc4 <- hclust(d, method = "single" )
+  head()
+
+colnames(datos)<-c( "ccaa","2020SM20","2020SM53","PrimOla","SegOla","TercOla" )
+
+
+
+# Gráfico de puntos
+g1<- ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
+
+g1
 
 
 ```
 
+**Del anterior gráfico y de los clusters pordemos concluir**: hay grandes diferencias entre los tres clusters. El **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
 
+
+
+## Con otros métodos de Enlace
+
+
+Vamos a probar a usar otros métodos de Enlace descritos previamente a ver si seguimos obteniendo los mismos clusters y poder llegar a una conclusión sólida.
 
 
 ```{r}
-plot(hc1, cex = 0.6, sub="")
+# For Complete
+plot(hc1, cex = 0.6, sub = "")
 rect.hclust(hc1, k = 3, border = 2:5)
 
 
-plot(hc2, cex = 0.6, sub="")
+# Ward.D method
+hc2 <- hclust(d, method = "ward.D")
+sub2 <- cutree(hc2, k = 3)
+
+plot(hc2, cex = 0.6, sub = "")
 rect.hclust(hc2, k = 3, border = 2:5)
 
-plot(hc3, cex = 0.6, sub="")
+
+# Average method
+hc3 <- hclust(d, method = "average")
+sub3 <- cutree(hc3, k = 3)
+
+plot(hc3, cex = 0.6, sub = "")
 rect.hclust(hc3, k = 3, border = 2:5)
 
-plot(hc4, cex = 0.6, sub="")
+# Single method
+hc4 <- hclust(d, method = "single")
+sub4 <- cutree(hc4, k = 3)
+
+plot(hc4, cex = 0.6, sub = "")
 rect.hclust(hc4, k = 3, border = 2:5)
 ```
 
 
 
+```{r,echo=FALSE}
+ g2<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub2)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub2)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
+
+ g3<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub3)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub3)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
+ 
+  g4<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub4)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub4)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
+  
+  
+  library(ggpubr)
+  ggarrange(g1,g2, g3, g4 + rremove("x.text"), 
+          labels = c("Complete", "ward.D", "Average", "Simple"),
+          ncol = 2, nrow = 2,vjust=0.9,
+          font.label = list(size = 8, color = "black"))
+  
+```
+
+
+De 4 tipos diferentes que hemos probado, nos salen 3 que se han clusterizado de igual manera, luego parece razonable la interpretación anterior. Para todos casos menos el de `ward`, el **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
+
+
 
 # Conclusiones
 
-Este modelo de regresión logística parece haber pasado todos los
-supuestos de dicha regresión, con una tasa de acierto buena.
+Aquí se han explicado los supuestos del hierarchical clustering.
