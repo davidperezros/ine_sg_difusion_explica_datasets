@@ -15,12 +15,17 @@ El repositorio está organizado en diferentes carpetas con el fin de organizar l
   
 -   \~\\**Datasets**: Contiene los ficheros de datos que se incluirán en la web explica con la finalidad de analizar los datos según la técnica estadísitca. En la carpeta de **Notebooks** se encunetran dichos estudios.
 
-| Dataset           | Técnica estadística | Descripción         |
+| Dataset           | Técnica Estadística | Descripción         |
 |-------------------|---------------------|---------------------|
 | IMCV              | Regresión           | Lineal              |
 | suicidios2019CCAA | Regresión Lineal    | Lineal              |
 | ECV_microdatos    | Clasificación       | Reg. Logística      |
 | Partos            | Clasificación       | Reg. Logística      |
+| VarCovid          | Cluster             | Jerárquico          |
+| VarCovid          | Cluster             | K-Means.            |
+
+
+
 
 # Créditos
 

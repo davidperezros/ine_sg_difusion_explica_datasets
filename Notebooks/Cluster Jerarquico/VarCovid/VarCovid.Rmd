@@ -80,7 +80,7 @@ función a las variables **1Ola** y **2Ola**.
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA's y si es necesario escalar los datos.
--  Palntear variables sobre las que se van a hacer los cluster.
+-   Plantear variables sobre las que se van a hacer los cluster.
 -  Elegir Función Distancia y Método de Enlace (o comparar varias).
 -  Interpretar resultados
 
