@@ -36,6 +36,8 @@ library(dendextend) # Para dendogramas
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
 library(stats) # hclust package
+
+library(factoextra) # fviz_cluster function
 ```
 
 Cargamos entonces el conjunto de datos:
@@ -52,7 +54,7 @@ función a las variables **1Ola** y **2Ola**.
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA’s y si es necesario escalar los datos.
--   Palntear variables sobre las que se van a hacer los cluster.
+-   Plantear variables sobre las que se van a hacer los cluster.
 -   Elegir Función Distancia y Método de Enlace (o comparar varias).
 -   Interpretar resultados
 
@@ -329,7 +331,106 @@ El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de
 fallecidos más parecido entre ambas olas, aunque podemos observar
 algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña
 hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la
-segunda.
+segunda. Resumiendo:
+
+-   El **cluster azul** representa las CCAA donde el exceso de
+    mortalidad respecto al año anterior fue mucho mayor en la primera
+    que en la segunda ola, es decir, hubo más muertes en la primera que
+    en la segunda ola. Notar que en este cluster encontramos la
+    comunidad con más población y flujo de visitantes del país,
+    Comunidad de Madrid , luego tiene sentido que fuera la pionera en
+    tener una tasa alta de muertes. Además, durante las primeras semanas
+    de virus en España, fueron Castilla-La Mancha y Madrid las que
+    presentaban peores números.
+
+-   El **cluster verde** representa las CCAA donde el exceso de
+    mortalidad respecto al año anterior fue mucho mayor en la segunda
+    que en la primera ola, es decir, hubo más muertes en la segunda que
+    en la primera ola. Notar, que a excepción de Melilla, Aragóon es una
+    comunidad con gran población residente en núcleos rurales y por ello
+    la propagación del virus tardó en extenderse. Debido a que no tienen
+    grandes ciudades esta propagación inicial fue más lenta y por ello
+    la segunda ola causo más exceso de mortalidad que la priemra.
+
+-   Por último, el **cluster rojo** presenta comunidades que tuvieron
+    una incidencia parecida en la primera y segunda ola.
+
+# Número Clusters Óptimo
+
+Encontrar el número óptimo de clusters implica identificar la cantidad
+ideal de grupos en los que se pueden dividir los datos de manera
+significativa y coherente. Es crucial porque determina la calidad y
+utilidad de los resultados del análisis de agrupamiento.
+
+## Método Elbrow
+
+Una de las formas comunes de determinar este número es a través del
+método del **codo** o **elbow** en inglés. Este método busca identificar
+el punto donde la adición de más clusters ya no proporciona un beneficio
+significativo en la varianza explicada o la cohesión dentro de los
+grupos.
+
+Al representar la variación explicada en función del número de clusters,
+observamos un **gráfico** que se asemeja a la **forma** de un codo. A
+medida que aumentamos el número de clusters, la varianza explicada
+tiende a disminuir. El punto en el que esta disminución se estabiliza o
+se aplana marca el número óptimo de clusters, indicando un equilibrio
+entre una mayor partición (más clusters) y una adecuada
+interpretabilidad de los grupos.
+
+``` r
+#  Método Elbrow
+set.seed(785248)
+factoextra::fviz_nbclust(resultado,hcut,method="wss")
+```
+
+<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
+
+El número óptimo de k parece ser 4 que es donde más se reduce la
+pendiente y la variabilidad explicada no parece disminuir de forma tan
+rápida. De todos modos, también podría parecer razonable tomar el 3 Es
+por ello que vamos a usar algún método adicional.
+
+## Método Silhouette
+
+El **método Silhouette** es una técnica utilizada para determinar la
+calidad de la agrupación en un conjunto de datos. Consiste en calcular
+el valor de la silueta para cada punto de datos, que mide qué tan
+similar es un punto a su propio grupo (cohesión) en comparación con
+otros grupos vecinos (separación).
+
+El proceso implica:
+
+1.  **Cálculo de la silueta individual**: Para cada punto de datos, se
+    calcula la silueta, que es la diferencia entre la distancia media
+    intra-cluster (distancia al resto de puntos en su mismo grupo) y la
+    distancia media al cluster más cercano (distancia a los puntos del
+    grupo más próximo, excluyendo el propio grupo).
+
+2.  **Valor de la silueta global**: Se obtiene el promedio de las
+    siluetas individuales de todos los puntos de datos en el conjunto.
+    Contra más cercano a 1, mejor formado estará el clsuter.
+
+La siguiente función generará un gráfico que muestra los valores de
+Silhouette en función del número de clusters. El número óptimo de
+clusters es típicamente aquel que maximiza el valor de Silhouette,
+representando una mejor cohesión intra-cluster y separación
+inter-cluster.
+
+``` r
+#  Método Silhouette
+set.seed(785248)
+factoextra::fviz_nbclust(resultado,hcut,method="silhouette")
+```
+
+<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
+
+Este método nos reafirma que el número óptimo es 3 puesto que es el caso
+cuyos clusters maximiza el valor de Silhouette, representando una mejor
+cohesión intra-cluster y separación inter-cluster.
+
+**NOTA**: Ahora podríamos repetir el estudio anterior con el número de
+clusters igual a 5 e intentar analizar de neuvo los resultados.
 
 # Conclusiones
 

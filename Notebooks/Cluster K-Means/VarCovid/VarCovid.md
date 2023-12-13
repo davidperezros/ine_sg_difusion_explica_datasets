@@ -81,14 +81,14 @@ Los pasos generales de este algoritmo son:
 1.  **Especificar** el número de clusters (K) que se se desean obtener.
 
 2.  **Seleccionar aleatoriamente k** objetos del conjunto de datos como
-    centros del grupo (centroides) Asigna cada observación a su
+    centros del grupo (centroides). Asigna cada observación a su
     centroide más cercano, según la distancia euclidiana entre el objeto
     y el centroide.
 
 3.  Para cada uno de los k grupos, **actualizar el centroide** del grupo
     calculando los nuevos valores medios de todos los puntos de datos
-    del grupo. El centoide de un grupo K-ésimo es un vector de longitud
-    p que contiene las medias de todas las variables para las
+    del grupo. El **centoide de un grupo K-ésimo es** un vector de
+    longitud p que contiene las medias de todas las variables para las
     observaciones en el grupo K-ésimo; p es el número de variables.
 
 4.  **Minimizar iterativamente** el total dentro de la suma del
@@ -122,59 +122,176 @@ ifelse(sum(is.na(data)) == 0, print("There is no NA in the dataset."), print("Th
 
     ## [1] "There is no NA in the dataset."
 
-En cuanto al método para hacer los clusters, vamos a dejar el que viene
-por defecto, el complete. Este se basa en medir la distancia entre
-clústeres como la distancia más larga entre cualquier punto de un
-clúster y cualquier punto del otro clúster. Menos sensible a valores
-atípicos, pero puede generar clústeres de tamaño desigual.
+Si quueremos que el código sea reproducible, es necesario fijar semilla
+(función `set.seed(n)`) ya que el algoritmo *k-means* elige los
+centroides iniciales aleatoriamente.
 
 ``` r
 # Preparación de los datos
 resultado <- datos[, c("1Ola", "2Ola")]
 
-resultado <- scale(resultado) #scaling/standardizing
+resultado <- scale(resultado) # scaling/standardizing
 rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
 comunidades <- datos$ccaa
 
-# Matriz de distancias
-d <- dist(resultado, method = "euclidean")
 
+# K-MEANS algortihm
+set.seed(785248) # reproducibilidad
+k1 <- kmeans(resultado, centers = 3, nstart = 25)
+k1
+```
 
-set.seed(785248)
-k1<- kmeans(resultado, centers = 3, nstart = 25)
+    ## K-means clustering with 3 clusters of sizes 5, 12, 3
+    ## 
+    ## Cluster means:
+    ##          1Ola       2Ola
+    ## 1 -0.06792789  1.3528076
+    ## 2 -0.45864725 -0.5113092
+    ## 3  1.94780216 -0.2094426
+    ## 
+    ## Clustering vector:
+    ##              Total nacional                   Andalucia 
+    ##                           2                           2 
+    ##                      Aragon     Asturias, Principado de 
+    ##                           1                           2 
+    ##              Balears, Illes                    Canarias 
+    ##                           2                           2 
+    ##                   Cantabria             Castilla y Leon 
+    ##                           2                           1 
+    ##        Castilla - La Mancha                    Cataluna 
+    ##                           3                           3 
+    ##        Comunitat Valenciana                 Extremadura 
+    ##                           2                           2 
+    ##                     Galicia        Madrid, Comunidad de 
+    ##                           2                           3 
+    ##           Murcia, Region de Navarra, Comunidad Foral de 
+    ##                           2                           2 
+    ##                  Pais Vasco                   Rioja, La 
+    ##                           2                           1 
+    ##                       Ceuta                     Melilla 
+    ##                           1                           1 
+    ## 
+    ## Within cluster sum of squares by cluster:
+    ## [1] 4.039852 5.699660 1.912043
+    ##  (between_SS / total_SS =  69.3 %)
+    ## 
+    ## Available components:
+    ## 
+    ## [1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss"
+    ## [6] "betweenss"    "size"         "iter"         "ifault"
 
-fviz_cluster(k1, data = resultado)
+``` r
+fviz_cluster(k1, data = resultado) # plot
 ```
 
 <img src="VarCovid_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
 
-Podemos mostrar los grupos junto al dataframe con la función mutate.
+Podemos observar que la agrupación en 3 clusters que ha hecho el
+algortimo K-MEANS es bastante similar a la que obtuvimos con el cluster
+jerárquico. Por un lado tenemos un clsuter de los valroes que se
+encuentran más a la derecha, luego otro con los que están más arriba y
+otros con los más cercanos al origen. En cierto modo:
+
+-   El **cluster azul** representa las CCAA donde el exceso de
+    mortalidad respecto al año anterior fue mucho mayor en la primera
+    que en la segunda ola, es decir, hubo más muertes en la primera que
+    en la segunda ola. Notar que en este cluster encontramos las dos
+    comunidades con más población y flujo de visitantes del país,
+    Comunidad de Madrid y Cataluña, luego tiene sentido que fueran las
+    pioneras en tener una tasa alta de muertes. De hecho durante las
+    primeras semanas de virus en España, fueron Castilla-La Mancha y
+    Madrid las que presentaban peores números.
+
+-   El **cluster rojo** representa las CCAA donde el exceso de
+    mortalidad respecto al año anterior fue mucho mayor en la segunda
+    que en la primera ola, es decir, hubo más muertes en la segunda que
+    en la primera ola. Notar, que a excepción de Ceuta y Melilla, las
+    comunidades que aparecen aquí, son comunidades con gran población
+    residente en núcleos rurales y por ello la propagación del virus
+    tardó en extenderse. Debido a que no tienen grandes ciudades esta
+    propagación inicial fue más lenta y por ello la segunda ola causo
+    más exceso de mortalidad que la priemra.
+
+-   Por último, el **cluster verde** presenta comunidades que tuvieron
+    una incidencia parecida en la primera y segunda ola.
+
+# Número Clusters Óptimo
+
+Encontrar el número óptimo de clusters implica identificar la cantidad
+ideal de grupos en los que se pueden dividir los datos de manera
+significativa y coherente. Es crucial porque determina la calidad y
+utilidad de los resultados del análisis de agrupamiento.
+
+## Método Elbrow
+
+Una de las formas comunes de determinar este número es a través del
+método del **codo** o **elbow** en inglés. Este método busca identificar
+el punto donde la adición de más clusters ya no proporciona un beneficio
+significativo en la varianza explicada o la cohesión dentro de los
+grupos.
+
+Al representar la variación explicada en función del número de clusters,
+observamos un **gráfico** que se asemeja a la **forma** de un codo. A
+medida que aumentamos el número de clusters, la varianza explicada
+tiende a disminuir. El punto en el que esta disminución se estabiliza o
+se aplana marca el número óptimo de clusters, indicando un equilibrio
+entre una mayor partición (más clusters) y una adecuada
+interpretabilidad de los grupos.
 
 ``` r
-colnames(datos)<-c( "ccaa","2020SM20","2020SM53","PrimOla","SegOla","TercOla" )
-
-
-
-# Gráfico de puntos
-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(k1$cluster)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(k1$cluster)))+labs(colour="Clusters")
+#  Método Elbrow
+set.seed(785248)
+factoextra::fviz_nbclust(resultado, kmeans, method = "wss",print.summary = TRUE)
 ```
 
 <img src="VarCovid_files/figure-markdown_github/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
+El número óptimo de k parece ser 5 que es donde más se reduce la
+pendiente y la variabilidad explicada no parece disminuir de forma tan
+rápida. De todos modos, también podría parecer razonable tomar el 4 o el
+6. Es por ello que vamos a usar algún método adicional.
+
+## Método Silhouette
+
+El **método Silhouette** es una técnica utilizada para determinar la
+calidad de la agrupación en un conjunto de datos. Consiste en calcular
+el valor de la silueta para cada punto de datos, que mide qué tan
+similar es un punto a su propio grupo (cohesión) en comparación con
+otros grupos vecinos (separación).
+
+El proceso implica:
+
+1.  **Cálculo de la silueta individual**: Para cada punto de datos, se
+    calcula la silueta, que es la diferencia entre la distancia media
+    intra-cluster (distancia al resto de puntos en su mismo grupo) y la
+    distancia media al cluster más cercano (distancia a los puntos del
+    grupo más próximo, excluyendo el propio grupo).
+
+2.  **Valor de la silueta global**: Se obtiene el promedio de las
+    siluetas individuales de todos los puntos de datos en el conjunto.
+    Contra más cercano a 1, mejor formado estará el clsuter.
+
+La siguiente función generará un gráfico que muestra los valores de
+Silhouette en función del número de clusters. El número óptimo de
+clusters es típicamente aquel que maximiza el valor de Silhouette,
+representando una mejor cohesión intra-cluster y separación
+inter-cluster.
+
 ``` r
-set.seed(123)
-fviz_nbclust(resultado, kmeans, method = "wss")
+#  Método Silhouette
+set.seed(785248)
+factoextra::fviz_nbclust(resultado, kmeans, method = "silhouette")
 ```
 
 <img src="VarCovid_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
-``` r
-fviz_nbclust(resultado, kmeans, method = "silhouette")
-```
+Este método nos reafirma que el número óptimo es 5 puesto que es el caso
+cuyos clusters maximiza el valor de Silhouette, representando una mejor
+cohesión intra-cluster y separación inter-cluster.
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-4-1.png" style="display: block; margin: auto;" />
-
-# Conclusiones
+**NOTA**: Ahora podríamos repetir el estudio anterior con el número de
+clusters igual a 5 e intentar analizar de neuvo los resultados. \#
+Conclusiones
 
 Aquí se han explicado los supuestos del hierarchical clustering.
 
