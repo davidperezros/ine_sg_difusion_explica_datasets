@@ -4,11 +4,11 @@ subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
-  md_document:
-    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
+  md_document:
+    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
