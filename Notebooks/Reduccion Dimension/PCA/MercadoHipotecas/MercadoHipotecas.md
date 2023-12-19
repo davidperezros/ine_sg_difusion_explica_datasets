@@ -269,7 +269,56 @@ rownames(datos)<-CCAA # Como nombres de filas las CCAA
 ```
 
 ``` r
-pca <- prcomp(datos, scale=TRUE)  # Scale=T 
+datos2<-scale(datos)
+summary(datos2)
+```
+
+    ##  HipotecaMedia     IndicedeVivienda  TasaEjecHipotecarias    Hip100H       
+    ##  Min.   :-0.9751   Min.   :-1.5436   Min.   :-0.71140     Min.   :-2.9025  
+    ##  1st Qu.:-0.6566   1st Qu.:-0.6068   1st Qu.:-0.58520     1st Qu.:-0.3455  
+    ##  Median :-0.3015   Median :-0.1983   Median :-0.44917     Median : 0.1511  
+    ##  Mean   : 0.0000   Mean   : 0.0000   Mean   : 0.00000     Mean   : 0.0000  
+    ##  3rd Qu.: 0.2604   3rd Qu.: 0.5942   3rd Qu.:-0.05025     3rd Qu.: 0.6728  
+    ##  Max.   : 2.7123   Max.   : 1.8782   Max.   : 2.40454     Max.   : 1.4235  
+    ##     TasaParo       TasaNatalidad          NumHip             VV100H       
+    ##  Min.   :-1.0305   Min.   :-1.62684   Min.   :-0.86162   Min.   :-1.8643  
+    ##  1st Qu.:-0.6963   1st Qu.:-0.70550   1st Qu.:-0.60711   1st Qu.:-0.5451  
+    ##  Median :-0.4903   Median :-0.04549   Median :-0.36343   Median : 0.1162  
+    ##  Mean   : 0.0000   Mean   : 0.00000   Mean   : 0.00000   Mean   : 0.0000  
+    ##  3rd Qu.: 0.5640   3rd Qu.: 0.39005   3rd Qu.:-0.09531   3rd Qu.: 0.8918  
+    ##  Max.   : 2.3643   Max.   : 2.68165   Max.   : 2.38726   Max.   : 1.3124  
+    ##     IndEnvej       TasaMortalidad    TasaFecundidad         Activos        
+    ##  Min.   :-1.8856   Min.   :-1.5718   Min.   :-1.687729   Min.   :-0.92324  
+    ##  1st Qu.:-0.5044   1st Qu.:-0.7817   1st Qu.:-0.408172   1st Qu.:-0.65392  
+    ##  Median :-0.1716   Median : 0.0561   Median : 0.003953   Median :-0.36848  
+    ##  Mean   : 0.0000   Mean   : 0.0000   Mean   : 0.000000   Mean   : 0.00000  
+    ##  3rd Qu.: 0.4082   3rd Qu.: 0.6394   3rd Qu.: 0.324077   3rd Qu.:-0.03633  
+    ##  Max.   : 2.0806   Max.   : 1.8696   Max.   : 2.685109   Max.   : 2.18293  
+    ##    Compravent     
+    ##  Min.   :-0.8525  
+    ##  1st Qu.:-0.6150  
+    ##  Median :-0.2898  
+    ##  Mean   : 0.0000  
+    ##  3rd Qu.:-0.1614  
+    ##  Max.   : 2.5476
+
+``` r
+diag(var(datos2))
+```
+
+    ##        HipotecaMedia     IndicedeVivienda TasaEjecHipotecarias 
+    ##                    1                    1                    1 
+    ##              Hip100H             TasaParo        TasaNatalidad 
+    ##                    1                    1                    1 
+    ##               NumHip               VV100H             IndEnvej 
+    ##                    1                    1                    1 
+    ##       TasaMortalidad       TasaFecundidad              Activos 
+    ##                    1                    1                    1 
+    ##           Compravent 
+    ##                    1
+
+``` r
+pca <- prcomp(datos2,scale = TRUE)  # Scale=T 
 ```
 
 1-3) **Calculamos los coeficientes de la ecuación para cada componente
@@ -473,7 +522,7 @@ añaden más, la varianza explicada por cada una es menor.
 fviz_eig(pca, main="Varianza de cada componente", choice = "eigenvalue", addlabels = T)
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 o como el porcentaje de varianza explicada por cada componente sobre el
 total.
 
@@ -481,14 +530,14 @@ total.
 fviz_screeplot(pca, addlabels = TRUE, main="Porcentaje de varianza explicada por cada componente (%)")
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
 A continuación, representamos las varianzas acumuladas:
 
 ``` r
 plot(summary(pca)$importance[3, ], type="o", col="darkblue", lwd=3, main = "Porcentaje de varianza acumulada", xlab = "Componente Principal", ylab = "Porcentaje de varianza acumulada")
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
 Determinar el número de componentes que elegir para continuar con el
 análisis no tiene unas normas determinadas a seguir. Respecto a ello,
 existen varios criterios con sus respectivas propuestas.
@@ -528,7 +577,21 @@ una interpretación a cada eje.
 
 ``` r
 # Autovectores de las primeras 3 componentes
-pca$rotation [,1:4]
+cov(pca$rotation [,1:4])
+```
+
+    ##              PC1          PC2           PC3           PC4
+    ## PC1  0.074284136  0.014541400  0.0029560973 -0.0029453827
+    ## PC2  0.014541400  0.059966364 -0.0047502326  0.0047330151
+    ## PC3  0.002956097 -0.004750233  0.0823676664  0.0009621668
+    ## PC4 -0.002945383  0.004733015  0.0009621668  0.0823746540
+
+Gráficamente, también podemos ver la contribución de las variables a los
+3 primeros ejes, señalando en color azul las variables que puntúan
+positivamente en el eje, y en rojo, las que lo hacen de forma negativa.
+
+``` r
+pca$rotation[,1:4]
 ```
 
     ##                              PC1         PC2         PC3         PC4
@@ -546,15 +609,6 @@ pca$rotation [,1:4]
     ## Activos               0.22264109 -0.41490535 -0.05417093 -0.08779747
     ## Compravent            0.22610583 -0.41442757 -0.14564495 -0.03868128
 
-Gráficamente, también podemos ver la contribución de las variables a los
-3 primeros ejes, señalando en color azul las variables que puntúan
-positivamente en el eje, y en rojo, las que lo hacen de forma negativa.
-
-``` r
-corrplot(pca$rotation[,1:4])
-```
-
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
 Si nos fijamos en los pesos más altos, podemos darle una interpretación
 a cada eje. Por ejemplo:
 
@@ -614,42 +668,147 @@ una variable del círculo de correlaciones, mejor será su representación,
 por lo que las variables que estén muy cerca del centro de la gráfica
 son las menos importantes para las dos primeras componentes.
 
-Observamos que todas las variables poseen una tonalidad cálida,
-indicando una buena calidad representativa en la PC1 y PC2. Sin embargo,
-TasaParo e HipotecaMedia tienen un color azul, y es debido a que son las
-úncias variables recogidas con un mayor peso en la PC3, por lo que no
-las tenemos en cuenta a la hora de interpretar este gráfico.
-
 ``` r
 fviz_pca_var(pca,axes=c(1,2), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
-En este gráfico, observamos de forma visual las conclusiones ya
-extraídas previamente de forma numérica.
+``` r
+fviz_pca_var(pca,axes=c(3,4), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+```
 
--   Si nos fijamos en el eje de abscisas, vemos como T_mort, Ind_envej,
-    Tasa_enf y T_nat son las variables con menor ángulo respecto a él,
-    indicando que han contribuído a la formación de la PC1. Las tres
-    primeras variables se sitúan a la derecha del eje (contribución
-    positiva), mientras que T_nat lo hace a la izquierda (contribución
-    negativa). Es llamativo el pequeño ángulo formado por T_mort e
-    Ind_envej, y es debido a la alta correlación entre ambas, que
-    recordamos que era del 92%).
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-15-2.png" style="display: block; margin: auto;" />
 
--   En cuanto al eje de ordenadas, vemos que las variables que forman un
-    menor ángulo respecto a él, son Médicos y Enfermeros, siendo las que
-    más contribuían a la formación de la PC2, ambas de forma positiva.
+**RESUMEN DE RESULTADOS**
 
-Además, podemos calcular la **correlación de las variables con cada
-componente principal**, que indican las coordenadas de la variable en el
-gráfico anterior.
+Los gráficos obtenidos muestran una visualización de las variables en
+función de las componentes principales 1 y 2, y 3 y 4. Las variables que
+tienen una correlación alta con la primera (y tercera) componente
+principal están más cerca del eje horizontal y las variables que tienen
+una alta correlación con la segunda componente principal(y cuarta) están
+más cerca del eje vertical. Las variables que se encuentran cerca del
+centro del gráfico tienen una correlación baja con ambas componentes
+principales, aún así nos guiaremos con la tabla para decidir qué
+variables están mejor explicadas por cada una de las componentes. En
+resumen, estos gráficos proporcionan una representación visual de las
+relaciones entre las variables en función de las dos primeras
+componentes principales y las dos segundas, lo que puede ayudar a
+identificar patrones y tendencias en los datos.
 
-Por tanto, las coordenadas de las variables pueden ir de -1 a 1. Cuanto
-más cercanas a -1 o 1, la variable afecta considerablemente al
-componente. Cuando están cercanas a 0 indican que la variable tiene poca
-influencia en el componente.
+**COMPONENTE 1**
+
+El índice del precio de la vivienda es un indicador importante para el
+mercado hipotecario ya que afecta el costo de las hipotecas y la
+capacidad de los compradores para obtener financiamiento. Si el precio
+de la vivienda es alto, es posible que las personas tengan dificultades
+para pagar su hipoteca y, por lo tanto, se reducirá la demanda de
+préstamos hipotecarios.
+
+El número de viviendas vacías por comunidad autónoma por cada 100 mil
+habitantes también es un factor importante en el mercado hipotecario. Si
+hay muchas viviendas vacías en una determinada área, es posible que el
+valor de las propiedades disminuya, lo que puede dificultar la venta de
+propiedades y la obtención de préstamos hipotecarios.
+
+El índice de envejecimiento, por su parte, puede tener un impacto en la
+demanda de viviendas en el mercado hipotecario. Si hay una población
+envejecida en una determinada área, es posible que haya menos demanda de
+viviendas, lo que puede disminuir el valor de las propiedades y hacer
+que sea más difícil obtener financiamiento.
+
+En conjunto, la primera componente parece estar relacionada con la
+oferta y la demanda de viviendas en el mercado hipotecario y, por lo
+tanto, podría ser importante para entender las condiciones del mercado
+inmobiliario en una determinada región. El nombre de la componente
+podría ser “**Indicadores del mercado hipotecario**”.
+
+**COMPONENTE 2**
+
+Tasa de ejecuciones hipotecarias: Este indicador mide la cantidad de
+ejecuciones hipotecarias que se han llevado a cabo en una determinada
+región en un periodo de tiempo específico. La tasa de ejecuciones
+hipotecarias puede reflejar la salud del mercado inmobiliario y la
+capacidad de los prestatarios para cumplir con sus pagos hipotecarios.
+Si la tasa de ejecuciones hipotecarias es alta, esto puede indicar que
+hay un mayor riesgo crediticio en la región y puede afectar la
+percepción de los prestamistas y compradores de vivienda.
+
+Número de hipotecas por comunidad autónoma: Este indicador mide la
+cantidad de hipotecas concedidas en una determinada región en un periodo
+de tiempo específico. El número de hipotecas puede reflejar la salud del
+mercado inmobiliario y la demanda de vivienda en la región. Si el número
+de hipotecas es alto, esto puede indicar una mayor actividad en el
+mercado hipotecario y una mayor demanda de vivienda en la región.
+
+Número de personas activas (Encuesta EPA): La Encuesta de Población
+Activa (EPA) es una encuesta que mide el número de personas en edad
+laboral que están trabajando o buscando trabajo. El número de personas
+activas puede tener un impacto en el mercado hipotecario, ya que si hay
+muchas personas empleadas en una determinada región, es posible que haya
+una mayor capacidad de los prestatarios para cumplir con sus pagos
+hipotecarios y una mayor demanda de vivienda en la región.
+
+Número de viviendas adquiridas en compraventa en el año 2021 por
+comunidad autónoma: Este indicador mide la cantidad de viviendas que se
+han comprado y vendido en una determinada región durante el año 2021.
+Este dato puede reflejar la actividad en el mercado inmobiliario y la
+demanda de vivienda en la región. Si el número de viviendas adquiridas
+en compraventa es alto, esto puede indicar una mayor actividad en el
+mercado hipotecario y una mayor demanda de vivienda en la región.
+
+Teniendo en cuenta las variables que componen la segunda componente, un
+posible nombre resumen podría ser “**Riesgo Hipotecario**”. Esta
+componente refleja tanto la actividad en el mercado hipotecario, medida
+por el número de hipotecas y viviendas adquiridas en compraventa, como
+la estabilidad del mercado, medida por la tasa de ejecuciones
+hipotecarias y el número de personas activas en la región.
+
+**COMPONENTE 3**
+
+Valor medio de las hipotecas: este indicador mide el valor promedio de
+las hipotecas concedidas en una determinada región en un periodo de
+tiempo específico. El valor medio de las hipotecas puede ser un
+indicador de la capacidad de los prestatarios para obtener financiación
+y adquirir una vivienda en la región.
+
+Tasa de desempleo: este indicador mide la proporción de personas en edad
+laboral que están desempleadas en una determinada región en un periodo
+de tiempo específico. La tasa de desempleo puede tener un impacto en el
+mercado hipotecario, ya que si hay muchas personas desempleadas en la
+región, es posible que haya una menor capacidad de los prestatarios para
+cumplir con sus pagos hipotecarios.
+
+En conjunto, estas variables pueden proporcionar información sobre la
+**salud (estabilidad) financiera** de los prestatarios en la región y su
+capacidad para afrontar los pagos hipotecarios.
+
+**COMPONENTE 4**
+
+Número de hipotecas por cada 100.000 habitantes: este indicador mide el
+número de hipotecas concedidas en una determinada región en relación con
+el número de habitantes de la misma. Este indicador puede proporcionar
+información sobre la actividad del mercado hipotecario en la región y la
+demanda de viviendas.
+
+Tasa de natalidad: este indicador mide la proporción de nacimientos en
+una determinada región en relación con el número total de habitantes. La
+tasa de natalidad puede ser un indicador de la demanda futura de
+viviendas, ya que las parejas jóvenes que tienen hijos suelen buscar
+viviendas más grandes y espaciosas para acomodar a sus familias.
+
+Tasa de fecundidad: este indicador mide el número promedio de hijos por
+mujer en una determinada región. La tasa de fecundidad también puede ser
+un indicador de la demanda futura de viviendas, ya que si la tasa de
+fecundidad es alta, puede haber una mayor demanda de viviendas más
+grandes y espaciosas.
+
+En conjunto, estas variables pueden proporcionar información sobre la
+actividad del mercado hipotecario en la región y la **demanda futura**
+de viviendas.
+
+En el siguiente gráfico podemos ver las correlaciones de dichas
+variables con las componentes principales, como ya hemos comentado.
 
 ``` r
 corr_var <- pca$rotation %*% diag(pca$sdev)
@@ -657,9 +816,17 @@ colnames(corr_var) <- c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8", 
 corrplot(corr_var)
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
 En cuanto a este gráfico, es llamativo como las tres o cuatro primeras
 componentes son las más importantes en el PCA, sobre todo, la PC1.
+
+En resumen, las nuevas componentes han permitido identificar patrones y
+características de las comunidades autónomas en términos de mercado
+hipotecario, riesgo hipotecario, estabilidad financiera y demanda
+futura. Este análisis proporciona información valiosa para comprender
+mejor las diferencias y similitudes entre las comunidades autónomas y
+puede ser útil para tomar decisiones en términos de políticas públicas y
+estrategias empresariales.
 
 **Gráfico de los individuos**
 
@@ -678,20 +845,13 @@ indicando que tienden a tener un nivel de Mercado de Hipotécas similar.
 fviz_pca_ind(pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE, axes = c(1, 2))
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
-Del mismo modo, podemos representar las Comunidades sobre PC1 y PC3.
-
-En este caso, las CC.AA. con menor porcentaje de población con
-inaccesibilidad a los medicamentos son Cantabria, Madrid y Castilla-La
-Macha, mientras que las Comunidades en las que un mayor porcentaje de
-población sufre estos problemas son Galicia, la Comunidad Valenciana o
-Murcia.
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
 ``` r
 fviz_pca_ind(pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE, axes = c(3, 4))
 ```
 
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
 Para poder extraer fácilmente los perfiles, podemos combinar las
 variables e individuos en un solo gráfico que nos permita identificar
 qué Comunidades se encuentran en una situación parecida y además, que
@@ -704,15 +864,51 @@ variables sobre los nuevos ejes. Para que el resultado sea fácilmente
 interpretable, debemos tener pocas variables e individuos en el conjunto
 de datos.
 
-``` r
-fviz_pca_biplot(pca, repel = TRUE, col.var = "deeppink", col.ind = "#696969")
-```
-
-<img src="MercadoHipotecas_files/figure-markdown_github/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
-
 # Conclusiones
 
-Aquí se han explicado los supuestos del hierarchical clustering.
+Las nuevas componentes han permitido analizar las características más
+destacadas de las comunidades autónomas en términos del mercado
+hipotecario, el riesgo hipotecario, la estabilidad financiera y la
+demanda futura.
+
+La primera componente (CP1) se relaciona positivamente con el número de
+viviendas vacías por cada 100 mil habitantes y el índice de
+envejecimiento. Esto sugiere que las comunidades autónomas con mayores
+tasas de envejecimiento tienen más viviendas vacías, lo que puede ser
+resultado de una menor demanda en el mercado hipotecario debido a la
+baja tasa de natalidad o las herencias. Las comunidades autónomas que
+destacan en esta componente son Ceuta, Melilla, Canarias y Asturias, que
+tienen los mayores índices de envejecimiento y viviendas vacías.
+
+La segunda componente (CP2) se correlaciona negativamente con la tasa de
+ejecuciones hipotecarias, el número de personas activas y el número de
+compraventas en 2021. Las comunidades autónomas con valores altos en
+esta componente son aquellas que tienen menor riesgo hipotecario y una
+mayor estabilidad financiera. Cataluña, Madrid y País Vasco son las
+comunidades autónomas que se destacan en esta componente.
+
+La tercera componente (CP3) está positivamente relacionada con el coste
+medio de las hipotecas y negativamente relacionada con la tasa de
+desempleo. Esto sugiere que las comunidades autónomas con un menor nivel
+de desempleo y con costos de hipoteca más elevados tienen una mayor
+estabilidad financiera y una menor probabilidad de incumplimiento de
+pago. Comunidad de Madrid, Cataluña y País Vasco son las comunidades
+autónomas que se destacan en esta componente.
+
+La cuarta componente (CP4) se correlaciona negativamente con la tasa de
+natalidad, la tasa de fecundidad y el número de hipotecas por cada 100
+mil habitantes. Esto sugiere que las comunidades autónomas con mayores
+tasas de natalidad y fecundidad tienen una mayor demanda futura en el
+mercado hipotecario. La Comunidad Valenciana, Andalucía y Castilla-La
+Mancha son las comunidades autónomas que se destacan en esta componente.
+
+En resumen, las nuevas componentes han permitido identificar patrones y
+características de las comunidades autónomas en términos de mercado
+hipotecario, riesgo hipotecario, estabilidad financiera y demanda
+futura. Este análisis proporciona información valiosa para comprender
+mejor las diferencias y similitudes entre las comunidades autónomas y
+puede ser útil para tomar decisiones en términos de políticas públicas y
+estrategias empresariales.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de
