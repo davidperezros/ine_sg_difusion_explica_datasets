@@ -1,14 +1,14 @@
 ---
-title: "Cluster Jerárquico: desigualdad_ccaa"
+title: "Cluster Jerárquico: desigualdad_CCAA"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
+  md_document:
+    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
-  md_document:
-    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -28,12 +28,12 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*desigualdad_ccaa*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_ccaa.xlsx).
+[*desigualdad_CCAA*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx).
 Este dataset presenta un conjunto de datos sobre el salario medio anual de hombres y mujeres en España, relativos a años 2017/18. Los datos (relativos a las variables *salario medio mujeres, hombres* que nos interesan) han sido 
 extraidos de la **Operación**  **Encuesta Anual de Estructura Salarial** (IOE 30189), que se encuentra dentro de la temática Mercado laboral y salarios.
 Concretamente en este dataset tenemos las siguientes variables (que nos interesan para este análisis):
 
--   **ccaa**: Comunidades Autónomas.
+-   **CCAA**: Comunidades Autónomas.
 -   **Salmedmuj**:	Salario medio anual (mujeres).
 -   **Salmedhom**:	Salario medio anual (hombres).
 
@@ -50,13 +50,12 @@ library(ggplot2) # Nice plots
 library(stats) # hclust package
 
 library(factoextra) # fviz_cluster function
-
 ```
 
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/desigualdad_ccaa.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/desigualdad_CCAA.xlsx", sheet = "Datos")
 ```
 
 
@@ -65,7 +64,7 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/de
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
+Cluster empleando el procedimiento Cluster Jerárquico de las **CCAA** en
 función a las variables **Salmedmuj** y **Salmedhom** para grupar las comunidades por las diferencias de salarios entre sexos.
 
 -   Hacer un análisis exploratorio.
@@ -168,9 +167,9 @@ En cuanto al método para hacer los clusters, vamos a dejar el que viene por def
 resultado <- datos[, c("Salmedmuj", "Salmedhom")]
 
 rownames(resultado) <- datos$CCAA # Para que nos salgan luego los nombres
-comunidades <- datos$ccaa
+comunidades <- datos$CCAA
 
-# Matriz de distancias
+# Matriz de distancias euclidea
 d <- dist(resultado, method = "euclidean")
 
 # Hierarchical clustering using Complete Linkage
@@ -178,7 +177,7 @@ hc1 <- hclust(d, method = "complete")
 
 # Plot the obtained dendrogram
 plot(hc1, cex = 0.6, hang = -1)
-abline(h = 100, col = "red", lty = 2)
+abline(h = 1500, col = "red", lty = 2)
 ```
 
 
@@ -200,26 +199,25 @@ table(sub1)
 
 Podemos mostrar los grupos junto al dataframe con la función mutate.
 ```{r,fig.align='center'}
-
 # Mostrar Clusters
 datos <- datos %>%
   mutate(cluster = sub1) %>%
-select("CCAA","Salmedmuj","Salmedhom")
+  select("CCAA", "Salmedmuj", "Salmedhom")
 
 
 
 
 
 # Gráfico de puntos
-g1<- ggplot(datos, aes(Salmedmuj, Salmedhom, label=CCAA))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
+g1 <- ggplot(datos, aes(Salmedmuj, Salmedhom, label = CCAA)) +
+  geom_point(aes(colour = factor(sub1))) +
+  geom_text(hjust = 0, vjust = 0, size = 2, aes(colour = factor(sub1))) +
+  labs(colour = "Clusters")
 
 g1
-
-
 ```
 
-**Del anterior gráfico y de los clusters pordemos concluir**: hay grandes diferencias entre los tres clusters. El **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
-
+Podemos observar que las agrupaciones, así como el escalado, no se ha hecho tanto por diferencia salarial entre hombre y mujeres y sí por cuantía salarial en las diferentes comunidades, para estudiarlo sería mejor ver porcentajes que muestren las diferencias. A pesar de ello, podemos destacar que en el cluster verde se agrupan las comunidades con menor salario medio y en el cluster morado las de mayor salario medio en hombres y mujeres. Por medio, se situan el cluster azul y el cluster rojo, este último es levemente superior.
 
 
 ## Con otros métodos de Enlace
@@ -231,63 +229,75 @@ Vamos a probar a usar otros métodos de Enlace descritos previamente a ver si se
 ```{r}
 # For Complete
 plot(hc1, cex = 0.6, sub = "")
-rect.hclust(hc1, k = 3, border = 2:5)
+rect.hclust(hc1, k = 4, border = 2:5)
 
 
 # Ward.D method
 hc2 <- hclust(d, method = "ward.D")
-sub2 <- cutree(hc2, k = 3)
+sub2 <- cutree(hc2, k = 4)
 
 plot(hc2, cex = 0.6, sub = "")
-rect.hclust(hc2, k = 3, border = 2:5)
+rect.hclust(hc2, k = 4, border = 2:5)
 
 
 # Average method
 hc3 <- hclust(d, method = "average")
-sub3 <- cutree(hc3, k = 3)
+sub3 <- cutree(hc3, k = 4)
 
 plot(hc3, cex = 0.6, sub = "")
-rect.hclust(hc3, k = 3, border = 2:5)
+rect.hclust(hc3, k = 4, border = 2:5)
 
 # Single method
 hc4 <- hclust(d, method = "single")
-sub4 <- cutree(hc4, k = 3)
+sub4 <- cutree(hc4, k = 4)
 
 plot(hc4, cex = 0.6, sub = "")
-rect.hclust(hc4, k = 3, border = 2:5)
+rect.hclust(hc4, k = 4, border = 2:5)
 ```
 
 
 
 ```{r,echo=FALSE}
- g2<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub2)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub2)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
+g2 <- ggplot(datos, aes(Salmedhom, Salmedmuj, label = CCAA)) +
+  geom_point(aes(colour = factor(sub2))) +
+  geom_text(hjust = 0, vjust = 0, size = 2, aes(colour = factor(sub2))) +
+  labs(colour = "Clusters") +
+  theme(
+    axis.text = element_text(size = 6),
+    axis.title = element_text(size = 6, face = "bold"), legend.title = element_text(size = 6)
+  )
 
- g3<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub3)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub3)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
- 
-  g4<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub4)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub4)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
-  
-  
-  library(ggpubr)
-  ggarrange(g1,g2, g3, g4 + rremove("x.text"), 
-          labels = c("Complete", "ward.D", "Average", "Simple"),
-          ncol = 2, nrow = 2,vjust=0.9,
-          font.label = list(size = 8, color = "black"))
-  
+g3 <- ggplot(datos, aes(Salmedhom, Salmedmuj, label = CCAA)) +
+  geom_point(aes(colour = factor(sub3))) +
+  geom_text(hjust = 0, vjust = 0, size = 2, aes(colour = factor(sub3))) +
+  labs(colour = "Clusters") +
+  theme(
+    axis.text = element_text(size = 6),
+    axis.title = element_text(size = 6, face = "bold"), legend.title = element_text(size = 6)
+  )
+
+g4 <- ggplot(datos, aes(Salmedhom, Salmedmuj, label = CCAA)) +
+  geom_point(aes(colour = factor(sub4))) +
+  geom_text(hjust = 0, vjust = 0, size = 2, aes(colour = factor(sub4))) +
+  labs(colour = "Clusters") +
+  theme(
+    axis.text = element_text(size = 6),
+    axis.title = element_text(size = 6, face = "bold"), legend.title = element_text(size = 6)
+  )
+
+
+library(ggpubr)
+ggarrange(g1, g2, g3, g4 + rremove("x.text"),
+  labels = c("Complete", "ward.D", "Average", "Simple"),
+  ncol = 2, nrow = 2, vjust = 0.9,
+  font.label = list(size = 8, color = "black")
+)
 ```
 
 
-De 4 tipos diferentes que hemos probado, nos salen 3 que se han clusterizado de igual manera, luego parece razonable la interpretación anterior. Para todos casos menos el de `ward`, el **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
-Resumiendo:
+De 4 tipos diferentes que hemos probado, la mayoría de ellos se han clusterizado de una manera semejante. Es decir, han agrupado por un lado los salarios mas altos de hombre y mujeres y por otro los más bajos.
 
 
--   El **cluster azul** representa las CCAA donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la primera que en la segunda ola, es decir, hubo más muertes en la primera que en la segunda ola. Notar que en este cluster encontramos la comunidad con más población y flujo de visitantes del país, Comunidad de Madrid , luego tiene sentido que fuera la pionera en tener una tasa alta de muertes. Además, durante las primeras semanas de virus en España, fueron Castilla-La Mancha y Madrid las que presentaban peores números.
-
--   El **cluster verde** representa las CCAA donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la segunda que en la primera ola, es decir, hubo más muertes en la segunda que en la primera ola. Notar, que a excepción de Melilla, Aragóon es una comunidad con gran población residente en núcleos rurales y por ello la propagación del virus tardó en extenderse. Debido a que no tienen grandes ciudades esta propagación inicial fue más lenta y por ello la segunda ola causo más exceso de mortalidad que la priemra.
-
-- Por último, el **cluster rojo** presenta comunidades que tuvieron una incidencia parecida en la primera y segunda ola. 
 
 
 
@@ -311,10 +321,10 @@ Al representar la variación explicada en función del número de clusters, obse
 ```{r}
 #  Método Elbrow
 set.seed(785248)
-factoextra::fviz_nbclust(resultado,hcut,method="wss")
+factoextra::fviz_nbclust(resultado, hcut, method = "wss")
 ```
 
-El número óptimo de k parece ser 4 que es donde más se reduce la pendiente y la variabilidad explicada no parece disminuir de forma tan rápida. De todos modos, también podría parecer razonable tomar el 3 Es por ello que vamos a usar algún método adicional. 
+El número óptimo de k parece ser 2 o 3 que es donde más se reduce la pendiente y la variabilidad explicada no parece disminuir de forma tan rápida. De todos modos, también podría parecer razonable tomar el4. Es por ello que vamos a usar algún método adicional. 
 
 ## Método Silhouette
 
@@ -334,16 +344,15 @@ La siguiente función generará un gráfico que muestra los valores de Silhouett
 ```{r}
 #  Método Silhouette
 set.seed(785248)
-factoextra::fviz_nbclust(resultado,hcut,method="silhouette")
-
+factoextra::fviz_nbclust(resultado, hcut, method = "silhouette")
 ```
 
 
 
-Este método nos reafirma que el número óptimo es 3 puesto que es el caso cuyos clusters maximiza el valor de Silhouette, representando una mejor cohesión intra-cluster y separación inter-cluster.
+Este método nos afirma que el número óptimo es 2 puesto que es el caso cuyos clusters maximiza el valor de Silhouette, representando una mejor cohesión intra-cluster y separación inter-cluster.
 
 
-**NOTA**: Ahora podríamos repetir el estudio anterior con el número de clusters igual a 5 e intentar analizar de neuvo los resultados.
+**NOTA**: Ahora podríamos repetir el estudio anterior con el número de clusters igual a 2 e intentar analizar de neuvo los resultados.
 
 
 # Conclusiones

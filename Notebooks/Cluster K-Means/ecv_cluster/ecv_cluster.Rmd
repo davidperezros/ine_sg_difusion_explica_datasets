@@ -1,14 +1,14 @@
 ---
-title: "Cluster K-Means: VarCovid"
+title: "Cluster K-Means: ecv_cluster"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
+  md_document:
+    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
-  md_document:
-    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -27,32 +27,22 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 
 ## dataset
 
+
 En este cuaderno vamos a analizar el dataset llamado
-[*VarCovid*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/0c24c4e30aaeab265e937150d1470102c61e62ac/Datasets/VarCovid.xlsx).
-Este contiene datos relativos a las Tasas de Variación de fallecidos en
-el año 2020 (Año Covid) respecto al año anterior. Los datos han sido
-extraidos de la **Operación** 30324 Estimación de Defunciones Semanales
-(EDeS), que se encuentra dentro de la temática Salud (Sociedad).
-Concretamente en este dataset tenemos las siguientes variables:
+[*ecv_cluster*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/ecv_cluster.xlsx).
+Este contiene datos por Comunidades Autónomas sobre la tasa de riesgo de pobreza, la carencia material o la situación laboral que encontramos dentro de la Encuesta de Condiciones de Vida (ECV). Datos correspondientes al año 2021. Las variables de interés son las siguientes:
+
+
 
 -   **ccaa**: Comunidades Autónomas
--   **2020SM20**: Tasa de variación del acumulado hasta la semana 20
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **2020SM53**: Tasa de variación del acumulado hasta la semana 53
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **1Ola**: Tasa de variación entre el acumulado entre la semana 11 de
-    2020 y la semana 18, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la primera ola
--   **2Ola**: Tasa de variación entre el acumulado entre la semana 32 de
-    2020 y la semana 49, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la segunda ola.
--   **3Ola**: Tasa de variación entre el acumulado entre la semana 51 de
-    2020 y la semana 10 de 2021, ambas incluidas, respecto a las mismas
-    semanas del año anterior. Tiempo correspondiente a la tercera ola.
+-   **taspobex**: Tasa de riesgo de pobreza o exclusión social (indicador AROPE).
+-   **taspob**: Tasa en riesgo de pobreza (renta año anterior a la entrevista).
+-   **tascar**: Tasa con carencia material severa.
+-   **tasvivtrab**: Tasa de hogares viviendo con baja intensidad en el trabajo (de 0 a 59 años).
+
 
 El objetivo de este estudio será aplicar un Análisis **Cluster** para
-hacer grupos de comunidades autónomas en función de las variables
-**1Ola** y **2Ola**. Concretamente usaremos un cluster K-Means
+hacer grupos de comunidades autónomas en función de las variables definidas arriba. Concretamente usaremos un cluster K-Means
 
 ```{r librerias, message=FALSE, warning= FALSE}
 # Librerias
@@ -65,7 +55,7 @@ library(factoextra) # fviz_cluster function
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/ecv_cluster.xlsx", sheet = "Datos")
 ```
 
 
@@ -73,14 +63,16 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/Va
 
 ## Descripción del trabajo a realizar
 
+
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster K-Means de las **ccaa** en
-función a las variables **1Ola** y **2Ola**.
+Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
+función a las variables **taspobex**, **taspob**, **tascar** y **tasvivtrab** .
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA's y si es necesario escalar los datos.
--  Emplear algoritmo kmeans().
--  Interpretar resultados.
+-   Plantear variables sobre las que se van a hacer los cluster.
+-  Elegir Función Distancia y Método de Enlace (o comparar varias).
+-  Interpretar resultados
 
 
 # Análisis Exploratorio (EDA[^1])
@@ -136,16 +128,16 @@ Si quueremos que el código sea reproducible, es necesario fijar semilla (funci�
 
 ```{r}
 # Preparación de los datos
-resultado <- datos[, c("1Ola", "2Ola")]
+resultado <- datos[, c("taspobex", "tascar")]
 
 resultado <- scale(resultado) # scaling/standardizing
-rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
-comunidades <- datos$ccaa
+rownames(resultado) <- datos$CCAA # Para que nos salgan luego los nombres
+comunidades <- datos$CCAA
 
 
 # K-MEANS algortihm
 set.seed(785248) # reproducibilidad
-k1 <- kmeans(resultado, centers = 3, nstart = 25)
+k1 <- kmeans(resultado, centers = 5, nstart = 25)
 k1
 fviz_cluster(k1, data = resultado) # plot
 ```

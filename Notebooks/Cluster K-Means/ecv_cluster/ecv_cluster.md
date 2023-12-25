@@ -3,31 +3,25 @@
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*VarCovid*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/0c24c4e30aaeab265e937150d1470102c61e62ac/Datasets/VarCovid.xlsx).
-Este contiene datos relativos a las Tasas de Variación de fallecidos en
-el año 2020 (Año Covid) respecto al año anterior. Los datos han sido
-extraidos de la **Operación** 30324 Estimación de Defunciones Semanales
-(EDeS), que se encuentra dentro de la temática Salud (Sociedad).
-Concretamente en este dataset tenemos las siguientes variables:
+[*ecv_cluster*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/ecv_cluster.xlsx).
+Este contiene datos por Comunidades Autónomas sobre la tasa de riesgo de
+pobreza, la carencia material o la situación laboral que encontramos
+dentro de la Encuesta de Condiciones de Vida (ECV). Datos
+correspondientes al año 2021. Las variables de interés son las
+siguientes:
 
 -   **ccaa**: Comunidades Autónomas
--   **2020SM20**: Tasa de variación del acumulado hasta la semana 20
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **2020SM53**: Tasa de variación del acumulado hasta la semana 53
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **1Ola**: Tasa de variación entre el acumulado entre la semana 11 de
-    2020 y la semana 18, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la primera ola
--   **2Ola**: Tasa de variación entre el acumulado entre la semana 32 de
-    2020 y la semana 49, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la segunda ola.
--   **3Ola**: Tasa de variación entre el acumulado entre la semana 51 de
-    2020 y la semana 10 de 2021, ambas incluidas, respecto a las mismas
-    semanas del año anterior. Tiempo correspondiente a la tercera ola.
+-   **taspobex**: Tasa de riesgo de pobreza o exclusión social
+    (indicador AROPE).
+-   **taspob**: Tasa en riesgo de pobreza (renta año anterior a la
+    entrevista).
+-   **tascar**: Tasa con carencia material severa.
+-   **tasvivtrab**: Tasa de hogares viviendo con baja intensidad en el
+    trabajo (de 0 a 59 años).
 
 El objetivo de este estudio será aplicar un Análisis **Cluster** para
 hacer grupos de comunidades autónomas en función de las variables
-**1Ola** y **2Ola**. Concretamente usaremos un cluster K-Means
+definidas arriba. Concretamente usaremos un cluster K-Means
 
 ``` r
 # Librerias
@@ -40,19 +34,21 @@ library(factoextra) # fviz_cluster function
 Cargamos entonces el conjunto de datos:
 
 ``` r
-datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/ecv_cluster.xlsx", sheet = "Datos")
 ```
 
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster K-Means de las **ccaa** en
-función a las variables **1Ola** y **2Ola**.
+Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
+función a las variables **taspobex**, **taspob**, **tascar** y
+**tasvivtrab** .
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA’s y si es necesario escalar los datos.
--   Emplear algoritmo kmeans().
--   Interpretar resultados.
+-   Plantear variables sobre las que se van a hacer los cluster.
+-   Elegir Función Distancia y Método de Enlace (o comparar varias).
+-   Interpretar resultados
 
 # Análisis Exploratorio (EDA[1])
 
@@ -128,52 +124,54 @@ centroides iniciales aleatoriamente.
 
 ``` r
 # Preparación de los datos
-resultado <- datos[, c("1Ola", "2Ola")]
+resultado <- datos[, c("taspobex", "tascar")]
 
 resultado <- scale(resultado) # scaling/standardizing
-rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
-comunidades <- datos$ccaa
+rownames(resultado) <- datos$CCAA # Para que nos salgan luego los nombres
+comunidades <- datos$CCAA
 
 
 # K-MEANS algortihm
 set.seed(785248) # reproducibilidad
-k1 <- kmeans(resultado, centers = 3, nstart = 25)
+k1 <- kmeans(resultado, centers = 5, nstart = 25)
 k1
 ```
 
-    ## K-means clustering with 3 clusters of sizes 5, 12, 3
+    ## K-means clustering with 5 clusters of sizes 4, 9, 1, 2, 3
     ## 
     ## Cluster means:
-    ##          1Ola       2Ola
-    ## 1 -0.06792789  1.3528076
-    ## 2 -0.45864725 -0.5113092
-    ## 3  1.94780216 -0.2094426
+    ##     taspobex     tascar
+    ## 1  0.0460573 -0.2986796
+    ## 2 -0.8631940 -0.5874343
+    ## 3  1.7252815  2.8516925
+    ## 4  1.2286096  1.5682076
+    ## 5  1.1340054  0.1645064
     ## 
     ## Clustering vector:
-    ##              Total nacional                   Andalucia 
-    ##                           2                           2 
-    ##                      Aragon     Asturias, Principado de 
-    ##                           1                           2 
-    ##              Balears, Illes                    Canarias 
-    ##                           2                           2 
-    ##                   Cantabria             Castilla y Leon 
-    ##                           2                           1 
-    ##        Castilla - La Mancha                    Cataluna 
-    ##                           3                           3 
-    ##        Comunitat Valenciana                 Extremadura 
-    ##                           2                           2 
-    ##                     Galicia        Madrid, Comunidad de 
-    ##                           2                           3 
-    ##           Murcia, Region de Navarra, Comunidad Foral de 
-    ##                           2                           2 
-    ##                  Pais Vasco                   Rioja, La 
-    ##                           2                           1 
-    ##                       Ceuta                     Melilla 
+    ##                   Andalucía                      Aragón 
+    ##                           5                           2 
+    ##     Asturias, Principado de              Balears, Illes 
     ##                           1                           1 
+    ##                    Canarias                   Cantabria 
+    ##                           4                           2 
+    ##             Castilla y León        Castilla - La Mancha 
+    ##                           2                           1 
+    ##                    Cataluña        Comunitat Valenciana 
+    ##                           2                           1 
+    ##                 Extremadura                     Galicia 
+    ##                           5                           2 
+    ##        Madrid, Comunidad de           Murcia, Región de 
+    ##                           2                           5 
+    ## Navarra, Comunidad Foral de                  País Vasco 
+    ##                           2                           2 
+    ##                   Rioja, La                       Ceuta 
+    ##                           2                           3 
+    ##                     Melilla 
+    ##                           4 
     ## 
     ## Within cluster sum of squares by cluster:
-    ## [1] 4.039852 5.699660 1.912043
-    ##  (between_SS / total_SS =  69.3 %)
+    ## [1] 0.7611090 1.3577465 0.0000000 0.3083460 0.4104786
+    ##  (between_SS / total_SS =  92.1 %)
     ## 
     ## Available components:
     ## 
@@ -184,7 +182,7 @@ k1
 fviz_cluster(k1, data = resultado) # plot
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
+<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
 
 Podemos observar que la agrupación en 3 clusters que ha hecho el
 algortimo K-MEANS es bastante similar a la que obtuvimos con el cluster
@@ -244,7 +242,7 @@ set.seed(785248)
 factoextra::fviz_nbclust(resultado, kmeans, method = "wss",print.summary = TRUE)
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
 El número óptimo de k parece ser 5 que es donde más se reduce la
 pendiente y la variabilidad explicada no parece disminuir de forma tan
@@ -283,7 +281,7 @@ set.seed(785248)
 factoextra::fviz_nbclust(resultado, kmeans, method = "silhouette")
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
 Este método nos reafirma que el número óptimo es 5 puesto que es el caso
 cuyos clusters maximiza el valor de Silhouette, representando una mejor

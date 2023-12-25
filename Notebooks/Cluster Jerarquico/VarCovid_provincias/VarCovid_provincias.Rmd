@@ -1,5 +1,5 @@
 ---
-title: "Cluster Jerárquico: VarCovid"
+title: "Cluster Jerárquico: VarCovid_provincias"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
@@ -28,30 +28,20 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*VarCovid*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/0c24c4e30aaeab265e937150d1470102c61e62ac/Datasets/VarCovid.xlsx).
-Este contiene datos relativos a las Tasas de Variación de fallecidos en
-el año 2020 (Año Covid) respecto al año anterior. Los datos han sido
-extraidos de la **Operación** 30324 Estimación de Defunciones Semanales
-(EDeS), que se encuentra dentro de la temática Salud (Sociedad).
-Concretamente en este dataset tenemos las siguientes variables:
+[*VarCovid_provincias*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/VarCovid_provincias.xlsx), elaborado a partir de los datos publicados por el INE. Este dataset está compuesto por el número de fallecidos durante las semanas que duraron las respectivas olas, así como un promedio entre los años 2017, 2018 y 2019 del número de fallecidos en esas mismas semanas y la tasa de variación entre ambas para ver el exceso de muertes que se ha producido. Esta última variable será la que nosotros utilicemos en nuestro estudio.
 
--   **ccaa**: Comunidades Autónomas
--   **2020SM20**: Tasa de variación del acumulado hasta la semana 20
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **2020SM53**: Tasa de variación del acumulado hasta la semana 53
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
+
+-   **provincia**: provincia
 -   **1Ola**: Tasa de variación entre el acumulado entre la semana 11 de
     2020 y la semana 18, ambas incluidas, respecto a las mismas semanas
     del año anterior. Tiempo correspondiente a la primera ola
 -   **2Ola**: Tasa de variación entre el acumulado entre la semana 32 de
     2020 y la semana 49, ambas incluidas, respecto a las mismas semanas
     del año anterior. Tiempo correspondiente a la segunda ola.
--   **3Ola**: Tasa de variación entre el acumulado entre la semana 51 de
-    2020 y la semana 10 de 2021, ambas incluidas, respecto a las mismas
-    semanas del año anterior. Tiempo correspondiente a la tercera ola.
+
 
 El objetivo de este estudio será aplicar un Análisis **Cluster** para
-hacer grupos de comunidades autónomas en función de las variables
+hacer grupos de provincias en función de las variables
 **1Ola** y **2Ola**. Concretamente usaremos un cluster jerárquico.
 
 ```{r librerias, message=FALSE, warning= FALSE}
@@ -69,7 +59,7 @@ library(factoextra) # fviz_cluster function
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid_provincias.xlsx", sheet = "Datos")
 ```
 
 
@@ -181,8 +171,8 @@ En cuanto al método para hacer los clusters, vamos a dejar el que viene por def
 resultado <- datos[, c("1Ola", "2Ola")]
 
 resultado <- scale(resultado) #scaling/standardizing
-rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
-comunidades <- datos$ccaa
+rownames(resultado) <- datos$provincia # Para que nos salgan luego los nombres
+comunidades <- datos$provincia
 
 # Matriz de distancias
 d <- dist(resultado, method = "euclidean")
@@ -192,7 +182,7 @@ hc1 <- hclust(d, method = "complete")
 
 # Plot the obtained dendrogram
 plot(hc1, cex = 0.6, hang = -1)
-abline(h = 100, col = "red", lty = 2)
+abline(h = 3, col = "red", lty = 2)
 ```
 
 
@@ -215,17 +205,14 @@ table(sub1)
 Podemos mostrar los grupos junto al dataframe con la función mutate.
 ```{r,fig.align='center'}
 
-# Mostrar Clusters
-datos %>%
-  mutate(cluster = sub1) %>%
-  head()
 
-colnames(datos)<-c( "ccaa","2020SM20","2020SM53","PrimOla","SegOla","TercOla" )
+
+colnames(datos)<-c( "provincia","1Ola","2Ola")
 
 
 
 # Gráfico de puntos
-g1<- ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
+g1<- ggplot(datos, aes(1Ola, 2Ola, label=provincia))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
 
 g1
 

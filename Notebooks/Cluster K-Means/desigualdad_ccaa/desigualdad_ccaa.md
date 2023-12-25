@@ -3,56 +3,53 @@
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*VarCovid*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/0c24c4e30aaeab265e937150d1470102c61e62ac/Datasets/VarCovid.xlsx).
-Este contiene datos relativos a las Tasas de Variación de fallecidos en
-el año 2020 (Año Covid) respecto al año anterior. Los datos han sido
-extraidos de la **Operación** 30324 Estimación de Defunciones Semanales
-(EDeS), que se encuentra dentro de la temática Salud (Sociedad).
-Concretamente en este dataset tenemos las siguientes variables:
+[*desigualdad_CCAA*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx).
+Este dataset presenta un conjunto de datos sobre el salario medio anual
+de hombres y mujeres en España, relativos a años 2017/18. Los datos
+(relativos a las variables *salario medio mujeres, hombres* que nos
+interesan) han sido extraidos de la **Operación** **Encuesta Anual de
+Estructura Salarial** (IOE 30189), que se encuentra dentro de la
+temática Mercado laboral y salarios. Concretamente en este dataset
+tenemos las siguientes variables (que nos interesan para este análisis):
 
--   **ccaa**: Comunidades Autónomas
--   **2020SM20**: Tasa de variación del acumulado hasta la semana 20
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **2020SM53**: Tasa de variación del acumulado hasta la semana 53
-    incluida del año 2020 respecto al año anterior en ese mismo periodo.
--   **1Ola**: Tasa de variación entre el acumulado entre la semana 11 de
-    2020 y la semana 18, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la primera ola
--   **2Ola**: Tasa de variación entre el acumulado entre la semana 32 de
-    2020 y la semana 49, ambas incluidas, respecto a las mismas semanas
-    del año anterior. Tiempo correspondiente a la segunda ola.
--   **3Ola**: Tasa de variación entre el acumulado entre la semana 51 de
-    2020 y la semana 10 de 2021, ambas incluidas, respecto a las mismas
-    semanas del año anterior. Tiempo correspondiente a la tercera ola.
+-   **CCAA**: Comunidades Autónomas.
+-   **Salmedmuj**: Salario medio anual (mujeres).
+-   **Salmedhom**: Salario medio anual (hombres).
 
 El objetivo de este estudio será aplicar un Análisis **Cluster** para
 hacer grupos de comunidades autónomas en función de las variables
-**1Ola** y **2Ola**. Concretamente usaremos un cluster K-Means
+**Salmedmuj** y **Salmedhom**. Concretamente usaremos un cluster K
+Means.
 
 ``` r
 # Librerias
 library(readxl) # Para leer los excels
+library(dendextend) # Para dendogramas
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
+library(stats) # hclust package
+
 library(factoextra) # fviz_cluster function
 ```
 
 Cargamos entonces el conjunto de datos:
 
 ``` r
-datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/VarCovid.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/desigualdad_CCAA.xlsx", sheet = "Datos")
 ```
 
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster K-Means de las **ccaa** en
-función a las variables **1Ola** y **2Ola**.
+Cluster empleando el procedimiento Cluster Jerárquico de las **CCAA** en
+función a las variables **Salmedmuj** y **Salmedhom** para grupar las
+comunidades por las diferencias de salarios entre sexos.
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA’s y si es necesario escalar los datos.
--   Emplear algoritmo kmeans().
--   Interpretar resultados.
+-   Plantear variables sobre las que se van a hacer los cluster.
+-   Elegir Función Distancia y Método de Enlace (o comparar varias).
+-   Interpretar resultados
 
 # Análisis Exploratorio (EDA[1])
 
@@ -128,52 +125,52 @@ centroides iniciales aleatoriamente.
 
 ``` r
 # Preparación de los datos
-resultado <- datos[, c("1Ola", "2Ola")]
+resultado <- datos[, c("Salmedmuj", "Salmedhom")]
+
 
 resultado <- scale(resultado) # scaling/standardizing
-rownames(resultado) <- datos$ccaa # Para que nos salgan luego los nombres
-comunidades <- datos$ccaa
+rownames(resultado) <- datos$CCAA # Para que nos salgan luego los nombres
+comunidades <- datos$CCAA
 
 
 # K-MEANS algortihm
 set.seed(785248) # reproducibilidad
-k1 <- kmeans(resultado, centers = 3, nstart = 25)
+k1 <- kmeans(resultado, centers = 4, nstart = 25)
 k1
 ```
 
-    ## K-means clustering with 3 clusters of sizes 5, 12, 3
+    ## K-means clustering with 4 clusters of sizes 2, 7, 6, 2
     ## 
     ## Cluster means:
-    ##          1Ola       2Ola
-    ## 1 -0.06792789  1.3528076
-    ## 2 -0.45864725 -0.5113092
-    ## 3  1.94780216 -0.2094426
+    ##    Salmedmuj  Salmedhom
+    ## 1  2.0558117  1.7885030
+    ## 2 -0.7614140 -0.8018329
+    ## 3 -0.1684797 -0.0415442
+    ## 4  1.1145764  1.1425446
     ## 
     ## Clustering vector:
-    ##              Total nacional                   Andalucia 
-    ##                           2                           2 
-    ##                      Aragon     Asturias, Principado de 
-    ##                           1                           2 
-    ##              Balears, Illes                    Canarias 
-    ##                           2                           2 
-    ##                   Cantabria             Castilla y Leon 
-    ##                           2                           1 
-    ##        Castilla - La Mancha                    Cataluna 
-    ##                           3                           3 
-    ##        Comunitat Valenciana                 Extremadura 
-    ##                           2                           2 
-    ##                     Galicia        Madrid, Comunidad de 
+    ##                   Andalucía                      Aragón 
     ##                           2                           3 
-    ##           Murcia, Region de Navarra, Comunidad Foral de 
+    ##     Asturias, Principado de              Balears, Illes 
+    ##                           3                           3 
+    ##                    Canarias                   Cantabria 
+    ##                           2                           3 
+    ##             Castilla y León        Castilla - La Mancha 
     ##                           2                           2 
-    ##                  Pais Vasco                   Rioja, La 
-    ##                           2                           1 
-    ##                       Ceuta                     Melilla 
-    ##                           1                           1 
+    ##                    Cataluña        Comunitat Valenciana 
+    ##                           4                           2 
+    ##                 Extremadura                     Galicia 
+    ##                           2                           3 
+    ##        Madrid, Comunidad de           Murcia, Región de 
+    ##                           1                           2 
+    ## Navarra, Comunidad Foral de                  País Vasco 
+    ##                           4                           1 
+    ##                   Rioja, La 
+    ##                           3 
     ## 
     ## Within cluster sum of squares by cluster:
-    ## [1] 4.039852 5.699660 1.912043
-    ##  (between_SS / total_SS =  69.3 %)
+    ## [1] 0.38832980 1.36731519 1.48489319 0.07439663
+    ##  (between_SS / total_SS =  89.6 %)
     ## 
     ## Available components:
     ## 
@@ -184,7 +181,7 @@ k1
 fviz_cluster(k1, data = resultado) # plot
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
+<img src="desigualdad_ccaa_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
 
 Podemos observar que la agrupación en 3 clusters que ha hecho el
 algortimo K-MEANS es bastante similar a la que obtuvimos con el cluster
@@ -192,28 +189,15 @@ jerárquico. Por un lado tenemos un clsuter de los valroes que se
 encuentran más a la derecha, luego otro con los que están más arriba y
 otros con los más cercanos al origen. En cierto modo:
 
--   El **cluster azul** representa las CCAA donde el exceso de
-    mortalidad respecto al año anterior fue mucho mayor en la primera
-    que en la segunda ola, es decir, hubo más muertes en la primera que
-    en la segunda ola. Notar que en este cluster encontramos las dos
-    comunidades con más población y flujo de visitantes del país,
-    Comunidad de Madrid y Cataluña, luego tiene sentido que fueran las
-    pioneras en tener una tasa alta de muertes. De hecho durante las
-    primeras semanas de virus en España, fueron Castilla-La Mancha y
-    Madrid las que presentaban peores números.
+-   Los **cluster rojo y morado** representa las CCAA donde el salario
+    de hombres y mujeres es más alto de todo España.
 
--   El **cluster rojo** representa las CCAA donde el exceso de
-    mortalidad respecto al año anterior fue mucho mayor en la segunda
-    que en la primera ola, es decir, hubo más muertes en la segunda que
-    en la primera ola. Notar, que a excepción de Ceuta y Melilla, las
-    comunidades que aparecen aquí, son comunidades con gran población
-    residente en núcleos rurales y por ello la propagación del virus
-    tardó en extenderse. Debido a que no tienen grandes ciudades esta
-    propagación inicial fue más lenta y por ello la segunda ola causo
-    más exceso de mortalidad que la priemra.
+-   El **cluster azul** representa las CCAA donde los salarios de
+    hombres y mujeres se encuentran en valores moderados, es decir, ni
+    en los valores más altos del país ni en los más bajos.
 
--   Por último, el **cluster verde** presenta comunidades que tuvieron
-    una incidencia parecida en la primera y segunda ola.
+-   Por último, el **cluster verde** presenta comunidades que presentar
+    unos salarios mucho más bajos en comparación con el resto.
 
 # Número Clusters Óptimo
 
@@ -244,12 +228,12 @@ set.seed(785248)
 factoextra::fviz_nbclust(resultado, kmeans, method = "wss",print.summary = TRUE)
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
+<img src="desigualdad_ccaa_files/figure-markdown_github/unnamed-chunk-2-1.png" style="display: block; margin: auto;" />
 
-El número óptimo de k parece ser 5 que es donde más se reduce la
+El número óptimo de k parece ser 2 que es donde más se reduce la
 pendiente y la variabilidad explicada no parece disminuir de forma tan
-rápida. De todos modos, también podría parecer razonable tomar el 4 o el
-6. Es por ello que vamos a usar algún método adicional.
+rápida. De todos modos, también podría parecer razonable tomar el 3 o el
+4. Es por ello que vamos a usar algún método adicional.
 
 ## Método Silhouette
 
@@ -283,9 +267,9 @@ set.seed(785248)
 factoextra::fviz_nbclust(resultado, kmeans, method = "silhouette")
 ```
 
-<img src="VarCovid_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="desigualdad_ccaa_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
 
-Este método nos reafirma que el número óptimo es 5 puesto que es el caso
+Este método nos reafirma que el número óptimo es 2 puesto que es el caso
 cuyos clusters maximiza el valor de Silhouette, representando una mejor
 cohesión intra-cluster y separación inter-cluster.
 
