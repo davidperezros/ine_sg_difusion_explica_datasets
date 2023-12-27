@@ -3,19 +3,19 @@
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*ecv_cluster*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/ecv_cluster.xlsx).
+[*ecv_cluster.xlsx*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/ecv_cluster.xlsx).
 Este contiene datos por Comunidades Autónomas sobre la tasa de riesgo de
 pobreza, la carencia material o la situación laboral que encontramos
 dentro de la Encuesta de Condiciones de Vida (ECV). Datos
 correspondientes al año 2021. Las variables de interés son las
 siguientes:
 
--   **ccaa**: Comunidades Autónomas
+-   **CCAA**: Comunidades Autónomas
 -   **taspobex**: Tasa de riesgo de pobreza o exclusión social
     (indicador AROPE).
 -   **taspob**: Tasa en riesgo de pobreza (renta año anterior a la
     entrevista).
--   **tascar**: Tasa con carencia material severa.
+-   **tascar**: Tasa peresonas con carencia material severa.
 -   **tasvivtrab**: Tasa de hogares viviendo con baja intensidad en el
     trabajo (de 0 a 59 años).
 
@@ -43,15 +43,17 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/ec
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
-función a las variables **taspobex**, **taspob**, **tascar** y
-**tasvivtrab** .
+Cluster empleando el procedimiento Cluster Jerárquico de las **CCAA** en
+función a las variables **taspobex** y **tascar** .
 
--   Hacer un análisis exploratorio.
--   Ver si hay NA’s y si es necesario escalar los datos.
--   Plantear variables sobre las que se van a hacer los cluster.
+-   Hacer un análisis exploratorio.Ver si hay NA’s y si es necesario
+    escalar los datos.
+-   Variables sobre las que se buscan cluster (*taspobex*, *tascar*).
+-   Estandarizar datos y probar cluster con k=3.
 -   Elegir Función Distancia y Método de Enlace (o comparar varias).
--   Interpretar resultados
+-   Interpretar resultados.
+-   Ver métodos Elbrow y Silhouette si hay otro número óptimo de
+    clusters y en ese caso repetir el estudio.
 
 # Análisis Exploratorio (EDA[1])
 
@@ -179,7 +181,7 @@ hc1 <- hclust(d, method = "complete")
 
 # Plot the obtained dendrogram
 plot(hc1, cex = 0.6, hang = -1)
-abline(h = 5, col = "red", lty = 2)
+abline(h = 2, col = "red", lty = 2)
 ```
 
 <img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-1-1.png" style="display: block; margin: auto;" />
@@ -206,113 +208,85 @@ clusteres:
 
 ``` r
 # Cut tree into 4 groups
-sub1 <- cutree(hc1, k = 5)
+sub1 <- cutree(hc1, k = 3)
 
 # Number of members in each cluster
 table(sub1)
 ```
 
     ## sub1
-    ## 1 2 3 4 5 
-    ## 3 8 5 2 1
+    ##  1  2  3 
+    ##  3 13  3
 
-Podemos mostrar los grupos junto al dataframe con la función mutate.
+Podemos añadir los clusters junto al dataframe con la función
+`dplyr::mutate`. El gráfico de puntos dibujando los clusters por colores
+vamos a dibujarlo para los valores origianles sin escalar (ya que el
+escalado sólo lo hemos hecho a la hora de definir los clusters).
 
 ``` r
-colnames(datos)<-c( "CCAA","taspobex","tascar" )
+# Mostrar Clusters
+datos %>%
+  mutate(cluster = sub1) %>%
+  select("CCAA", "taspobex", "tascar","cluster")
+```
+
+    ## # A tibble: 19 × 4
+    ##    CCAA                        taspobex tascar cluster
+    ##    <chr>                          <dbl>  <dbl>   <int>
+    ##  1 Andalucía                       38.4   10.2       1
+    ##  2 Aragón                          20.3    5.6       2
+    ##  3 Asturias, Principado de         26.6    5.5       2
+    ##  4 Balears, Illes                  24.5    8.5       2
+    ##  5 Canarias                        38.3   13.5       3
+    ##  6 Cantabria                       21.6    5.7       2
+    ##  7 Castilla y León                 22.4    3.8       2
+    ##  8 Castilla - La Mancha            31.4    5.1       2
+    ##  9 Cataluña                        22.1    7.3       2
+    ## 10 Comunitat Valenciana            30.3    7.1       2
+    ## 11 Extremadura                     39.1    6.9       1
+    ## 12 Galicia                         24.5    3.8       2
+    ## 13 Madrid, Comunidad de            21.1    6         2
+    ## 14 Murcia, Región de               34.7    9.1       1
+    ## 15 Navarra, Comunidad Foral de     16.6    5.5       2
+    ## 16 País Vasco                      15.9    5.2       2
+    ## 17 Rioja, La                       20.1    3.8       2
+    ## 18 Ceuta                           42.4   21.4       3
+    ## 19 Melilla                         38.1   17.2       3
+
+``` r
+#Graficamos datos diferenciando clusters 
 
 
-resultado<-as.data.frame(resultado)
-resultado$CCAA<-rownames(resultado)
-
-# Gráfico de puntos
-g1<- ggplot(resultado, aes(taspobex, tascar, label=CCAA))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
+g1<- ggplot(datos, aes(taspobex, tascar, label=CCAA))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
 
 g1
 ```
 
-<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
 
-**Del anterior gráfico y de los clusters pordemos concluir**: hay
-grandes diferencias entre los tres clusters. El **Cluster Azul**
-corresponde a las comunidades donde la primera ola de COVID generó un
-gran exceso de mortalidad respecto al año anterior, son los casos de la
-Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster
-Verde** corresponde a las comunidades donde se produjo un mayor exceso
-de fallecidos en la segunda ola, como son los casos de Melilla y Aragón.
-El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de
-fallecidos más parecido entre ambas olas, aunque podemos observar
-algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña
-hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la
-segunda.
+Parece haber 3 clusters claros.
 
-## Con otros métodos de Enlace
+-   Por un lado, en **azul** las CCAA que presentan una tasa de riesgo
+    de probeza y una tasa de personas con carencia material severa muy
+    alta. Estas son Canarias, Ceuta y Melilla, lo cual cabría pensar que
+    tiene sentido ya que ambas tres regiones contienen fuertes
+    corrientes migratorias debido a que se encuentran en puntos
+    fronterizos en el que hay mucha inmigración ilegal procedente de
+    países como Marruecos.
 
-Vamos a probar a usar otros métodos de Enlace descritos previamente a
-ver si seguimos obteniendo los mismos clusters y poder llegar a una
-conclusión sólida.
+-   En **rojo** se encuentran las CCAA que presentan una tasa de riesgo
+    de probeza similares a las anteriores pero la de personas con
+    carencia materil alta no es tan grande como en las citadas
+    anteriormente. Estas son Andalucía, Murica y Extremadura, que
+    efectivamnete es común que aparezcan en la prensa anualmente como
+    regiones con más pobreza dentro de España (a excepción de Murica) y
+    sin embargo presentan una tasa de personas con carencia material no
+    tan alta como las anteriores peusto que no hay tanta población en
+    situació irregular que pueda derivar en una carencia material
+    sustancial.
 
-``` r
-# For Complete
-plot(hc1, cex = 0.6, sub = "")
-rect.hclust(hc1, k = 3, border = 2:5)
-
-
-# Ward.D method
-hc2 <- hclust(d, method = "ward.D")
-sub2 <- cutree(hc2, k = 3)
-
-plot(hc2, cex = 0.6, sub = "")
-rect.hclust(hc2, k = 3, border = 2:5)
-
-
-# Average method
-hc3 <- hclust(d, method = "average")
-sub3 <- cutree(hc3, k = 3)
-
-plot(hc3, cex = 0.6, sub = "")
-rect.hclust(hc3, k = 3, border = 2:5)
-
-# Single method
-hc4 <- hclust(d, method = "single")
-sub4 <- cutree(hc4, k = 3)
-
-plot(hc4, cex = 0.6, sub = "")
-rect.hclust(hc4, k = 3, border = 2:5)
-```
-
-De 4 tipos diferentes que hemos probado, nos salen 3 que se han
-clusterizado de igual manera, luego parece razonable la interpretación
-anterior. Para todos casos menos el de `ward`, el **Cluster Azul**
-corresponde a las comunidades donde la primera ola de COVID generó un
-gran exceso de mortalidad respecto al año anterior, son los casos de la
-Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster
-Verde** corresponde a las comunidades donde se produjo un mayor exceso
-de fallecidos en la segunda ola, como son los casos de Melilla y Aragón.
-El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de
-fallecidos más parecido entre ambas olas, aunque podemos observar
-algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña
-hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la
-segunda. Resumiendo:
-
--   El **cluster azul** representa las CCAA donde el exceso de
-    mortalidad respecto al año anterior fue mucho mayor en la primera
-    que en la segunda ola, es decir, hubo más muertes en la primera que
-    en la segunda ola. Notar que en este cluster encontramos la
-    comunidad con más población y flujo de visitantes del país,
-    Comunidad de Madrid , luego tiene sentido que fuera la pionera en
-    tener una tasa alta de muertes. Además, durante las primeras semanas
-    de virus en España, fueron Castilla-La Mancha y Madrid las que
-    presentaban peores números.
-
--   El **cluster verde** representa las CCAA donde el exceso de
-    mortalidad respecto al año anterior fue mucho mayor en la segunda
-    que en la primera ola, es decir, hubo más muertes en la segunda que
-    en la primera ola. Notar, que a excepción de Melilla, Aragóon es una
-    comunidad con gran población residente en núcleos rurales y por ello
-    la propagación del virus tardó en extenderse. Debido a que no tienen
-    grandes ciudades esta propagación inicial fue más lenta y por ello
-    la segunda ola causo más exceso de mortalidad que la priemra.
+-   Por último, en **verde** encontramos el resto de CCAA que tienen
+    valores más razonables para ambos indicadores.
 
 -   Por último, el **cluster rojo** presenta comunidades que tuvieron
     una incidencia parecida en la primera y segunda ola.
@@ -323,6 +297,10 @@ Encontrar el número óptimo de clusters implica identificar la cantidad
 ideal de grupos en los que se pueden dividir los datos de manera
 significativa y coherente. Es crucial porque determina la calidad y
 utilidad de los resultados del análisis de agrupamiento.
+
+En este apartado revisaremos si el número de clusters que hemos
+seleccionado anteriormente (3) es el óoptimo, y de lo contrario haremos
+de nuevo el análisis con el número que se obtenga.
 
 ## Método Elbrow
 
@@ -348,10 +326,10 @@ factoextra::fviz_nbclust(resultado,hcut,method="wss")
 
 <img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-6-1.png" style="display: block; margin: auto;" />
 
-El número óptimo de k parece ser 4 que es donde más se reduce la
+El número óptimo de k parece ser 3 que es donde más se reduce la
 pendiente y la variabilidad explicada no parece disminuir de forma tan
-rápida. De todos modos, también podría parecer razonable tomar el 3 Es
-por ello que vamos a usar algún método adicional.
+rápida. De todos modos, también podría parecer razonable tomar 2. Es por
+ello que vamos a usar algún método adicional.
 
 ## Método Silhouette
 
@@ -387,16 +365,56 @@ factoextra::fviz_nbclust(resultado,hcut,method="silhouette")
 
 <img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
-Este método nos reafirma que el número óptimo es 3 puesto que es el caso
+Este método nos reafirma que el número óptimo es 2 puesto que es el caso
 cuyos clusters maximiza el valor de Silhouette, representando una mejor
-cohesión intra-cluster y separación inter-cluster.
+cohesión intra-cluster y separación inter-cluster. No obstante
+k=3,también presnta valores muy altos leugo los podríamos tomar.
 
-**NOTA**: Ahora podríamos repetir el estudio anterior con el número de
-clusters igual a 5 e intentar analizar de neuvo los resultados.
+**NOTA**: Ahora vamos repetir el estudio anterior con el número de
+clusters igual a 2 e intentar analizar de neuvo los resultados.
+
+Vamos a utilizar en todos casos la distancia euclídea como ya se ha
+razonado antes y vamos a usar diferentes métodos de Fusión de Clusters
+para ver si obtenemos resutlados significativos.
+
+``` r
+# For Complete method
+
+hc1 <- hclust(d, method = "complete")
+sub1 <- cutree(hc1, k = 2)
+
+
+# Ward.D method
+hc2 <- hclust(d, method = "ward.D")
+sub2 <- cutree(hc2, k = 2)
+
+
+
+
+# Average method
+hc3 <- hclust(d, method = "average")
+sub3 <- cutree(hc3, k = 2)
+
+
+# Single method
+hc4 <- hclust(d, method = "single")
+sub4 <- cutree(hc4, k = 2)
+```
+
+<img src="ecv_cluster_files/figure-markdown_github/unnamed-chunk-9-1.png" style="display: block; margin: auto;" />
+
+Notar que en todos casos hemos obtenido (a expeción de con `simple`)
+distribuciones similares en los clusters, que viene siendo lo mismo que
+en el caso de k=3 clusters pero agrupando los dos primeros tipos que
+habíamos visto. Es por ello que los resutlados parecen coherentes.
 
 # Conclusiones
 
-Aquí se han explicado los supuestos del hierarchical clustering.
+Aquí se han explicado los supuestos del cluster jerárquico con un
+dataset en el que se han creado clusters de CCAA según tasa de riesgo de
+pobreza y la carencia material. La evidencia nos ha mostrado que se
+tiende a grupar las comunidades con incidencias más altas por un lado y
+más bajas por otro.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de
