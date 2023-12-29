@@ -55,8 +55,9 @@ función a las variables **1Ola** y **2Ola**.
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA’s y si es necesario escalar los datos.
 -   Plantear variables sobre las que se van a hacer los cluster.
--   Elegir Función Distancia y Método de Enlace (o comparar varias).
--   Interpretar resultados
+-   Interpretar resultados.
+-   Ver métodos Elbrow y Silhouette si hay otro número óptimo de
+    clusters y en ese caso repetir el estudio.
 
 # Análisis Exploratorio (EDA[1])
 
@@ -434,7 +435,8 @@ clusters igual a 5 e intentar analizar de neuvo los resultados.
 
 # Conclusiones
 
-Aquí se han explicado los supuestos del hierarchical clustering.
+Aquí se han explicado los supuestos del cluster jerárquico con un caso
+práctico relacionado con el COVID.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de

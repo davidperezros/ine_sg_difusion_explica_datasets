@@ -79,8 +79,9 @@ función a las variables **1Ola** y **2Ola**.
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA's y si es necesario escalar los datos.
--  Emplear algoritmo kmeans().
+-   Plantear variables sobre las que se van a hacer los cluster.
 -  Interpretar resultados.
+-  Ver métodos Elbrow y Silhouette si hay otro número óptimo de clusters y en ese caso repetir el estudio.
 
 
 # Análisis Exploratorio (EDA[^1])
@@ -211,4 +212,4 @@ Este método nos reafirma que el número óptimo es 5 puesto que es el caso cuyo
 **NOTA**: Ahora podríamos repetir el estudio anterior con el número de clusters igual a 5 e intentar analizar de neuvo los resultados.
 # Conclusiones
 
-Aquí se han explicado los supuestos del hierarchical clustering.
+Aquí se han explicado los supuestos del K-Means cluster  con un caso práctico relacionado con el COVID.

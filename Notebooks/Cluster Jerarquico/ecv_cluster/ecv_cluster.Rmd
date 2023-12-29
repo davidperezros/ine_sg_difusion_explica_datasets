@@ -72,7 +72,7 @@ función a las variables **taspobex** y **tascar** .
 
 -   Hacer un análisis exploratorio.Ver si hay NA's y si es necesario escalar los datos.
 -   Variables sobre las que se buscan cluster (*taspobex*, *tascar*).
-- Estandarizar datos y probar cluster con k=3.
+- Estandarizar datos y probar cluster jerárquico con k=3.
 -  Elegir Función Distancia y Método de Enlace (o comparar varias).
 -  Interpretar resultados.
 -  Ver métodos Elbrow y Silhouette si hay otro número óptimo de clusters y en ese caso repetir el estudio.
