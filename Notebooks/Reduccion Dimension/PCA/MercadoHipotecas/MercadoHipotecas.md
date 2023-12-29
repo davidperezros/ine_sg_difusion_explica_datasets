@@ -3,18 +3,19 @@
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*MercadoHipotecas*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/aa4094c2592ae20139130220c6658c8ab58b1037/Datasets/MercadoHipotecas.xlsx).
+[*MercadoHipotecas.xlsx*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/aa4094c2592ae20139130220c6658c8ab58b1037/Datasets/MercadoHipotecas.xlsx).
 Este dataset presenta los datos de estudio del mercado de adquisición de
 viviendas en propiedad en todas las comunidades autónomas durante el
 ejercicio 2021, relacionando las transmisiones inmobiliarias con las
 hipotecas constituidas, los índices de precio de vivienda y otras
 variables económicas y sociodemográficas. Orientado a escalamiento
 multidimensional, técnicas de clusterización y análisis de componentes
-principales. Nuestro **objetivo** es conocer que variables
-independientes son de interés para estudiar el mercado inmobiliario y
-ver qué comunidades autónomas son las más parecidas y las más diferentes
-en términos de variables hipotecarias y sociodemográficas. Concretamente
-en este dataset tenemos las siguientes variables:
+principales. Nuestro **objetivo** es aplicar un procedimiento de PCA
+para conocer que variables independientes son de interés para estudiar
+el mercado inmobiliario y ver qué comunidades autónomas son las más
+parecidas y las más diferentes en términos de variables hipotecarias y
+sociodemográficas. Concretamente en este dataset tenemos las siguientes
+variables:
 
 -   **CCAA**: Comunidades Autónomas.
 -   **HipotecaMedia**: Importe de la hipoteca por cada comunidad
@@ -68,10 +69,12 @@ independientes son de interés para estudiar el mercado inmobiliario y
 ver qué comunidades autónomas son las más parecidas y las más diferentes
 en términos de variables hipotecarias y sociodemográficas.
 
--   Hacer un análisis exploratorio.
--   Ver si hay NA’s y si es necesario escalar los datos.
--   Emplear algoritmo kmeans().
--   Interpretar resultados.
+-   Hacer un análisis exploratorio explorando matriz de correlaciones.
+-   Ver si es necesario escalar/centrar los datos antes de aplicar pca y
+    decidir si hacerlo con matriz de correlaciones o covarianzas.
+-   Seleccionar un determinado número de componentes y ver como influyen
+    las variables en estas.
+-   Interpretar componentes y resultados.
 
 # Análisis Exploratorio (EDA[1])
 
@@ -187,12 +190,12 @@ del 100%.
 
 En términos absolutos, vemos que hay varias **correlaciones
 moderadas/altas** como entre las variables *Activos* y *Compravent* (del
-98%) o entre **IndEnvej\* y **TasaMortalidad\* (del 74%). En ambos
-casos, la correlación es positiva, es decir, que crecen
-proporcionalmente. Respecto a la correlación negativa, encontramos
-valores muy altos para *TasaNatalidad* e *IndEnvej*. Las correlaciones
-más **bajas** corresponden a los pares *TasaNatalidad* y *Compravent*
-(2%) o *HipotecaMedia* y *TasaFecundidad* (-1%).
+98%) o entre *IndEnvej* y *TasaMortalidad* (del 74%). En ambos casos, la
+correlación es positiva, es decir, que crecen proporcionalmente.
+Respecto a la correlación negativa, encontramos valores muy altos para
+*TasaNatalidad* e *IndEnvej*. Las correlaciones más **bajas**
+corresponden a los pares *TasaNatalidad* y *Compravent* (2%) o
+*HipotecaMedia* y *TasaFecundidad* (-1%).
 
 En resumen, vemos que hay varias variables con una alta correlación
 absoluta(tanto postivia como negativa), luego esto nos va a permitir
@@ -215,8 +218,8 @@ originales. PCA es útil para entender relaciones, reducir dimensiones y
 manejar la alta correlación entre variables.
 
 Para aplicar PCA, se necesitan **datos cuantitativos** y es crucial
-*estandarizar* las variables para que tengan media cero y varianza uno.
-Esto garantiza que ninguna variable domine el análisis. Además, se puede
+*escalar las variables* (estandarizar = media cero y varianza uno). Esto
+garantiza que ninguna variable domine el análisis. Además, se puede
 trabajar con la matriz de correlaciones para abordar fuertes
 correlaciones entre variables, manteniendo así la información más
 relevante del conjunto de datos.
@@ -233,23 +236,36 @@ Los pasos generales son:
     busca abordar fuertes correlaciones entre variables, o con la matriz
     de covarianzas si se busca la varianza total de las variables.
 
-3.  **Descomposición de la matriz**: Utiliza rmétodos matemáticos como
-    la descomposición de valores propios (eigenvalues) y vectores
-    propios (eigenvectors) para obtener los componentes principales.
-    Esto se puede realizar mediante técnicas como la descomposición en
-    valores singulares (SVD) o métodos específicos de librerías.
+-   **NOTA**: Aconsejable trabajar siempre con la matriz de
+    correlaciones (a no ser que todas variables estén en las mismas
+    unidades, que se podrá usar la matriz de covarianzas). De no seguir
+    esta nota y usar la matriz de covarianzas, las variables que tienen
+    mayores unidades dominarán la estructura de covarianza, lo que
+    llevará a una representación inexacta de la variabilidad real de los
+    datos.
 
-4.  **Selección de componentes**: Examinar los valores propios para
-    decidir cuántos componentes principales retendrás. Los valores
-    propios más grandes indican una mayor variabilidad explicada por
-    esos componentes.
+1.  **Descomposición de la matriz**: Se descompone la matriz de
+    correlaciones en sus vectores y valores propios. Los valores propios
+    representan la cantidad de varianza explicada por cada componente
+    principal, mientras que los vectores propios (autovectores)
+    determinan la dirección de cada componente en el espacio
+    multidimensional original.
 
-5.  **Transformación de datos**: Proyectar los datos originales en el
+2.  **Selección de componentes**: Los componentes se ordenan de manera
+    descendente según la cantidad de varianza que explican. Los primeros
+    componentes capturan la mayor variabilidad de los datos y se
+    seleccionan para reducir la dimensionalidad manteniendo la
+    información más relevante.
+
+3.  **Transformación de datos**: Proyectar los datos originales en el
     espacio de los componentes principales para obtener las nuevas
     variables. Estas son combinaciones lineales de las variables
-    originales y son ortogonales entre sí.
+    originales y son ortogonales entre sí. Esta transformación lineal
+    **conserva la mayor parte de la información en un espacio de menor
+    dimensión, lo que facilita el análisis y la visualización de los
+    datos**.
 
-6.  **Interpretación y visualización**: Explorar la importancia de cada
+4.  **Interpretación y visualización**: Explorar la importancia de cada
     componente en términos de la variabilidad explicada. Se pueden
     interpretar los componentes para comprender qué aspectos de los
     datos capturan. Si es posible, representar gráficamente los datos en
@@ -267,6 +283,9 @@ CCAA<-datos$CCAA
 datos<-datos[,-1]         # Eliminamos ahora 
 rownames(datos)<-CCAA # Como nombres de filas las CCAA
 ```
+
+Escalamos los datos y calculamos la matriz de varianzas covarianzas,
+mostramos solo la diagonal (debería ser 1).
 
 ``` r
 datos2<-scale(datos)
@@ -317,15 +336,20 @@ diag(var(datos2))
     ##           Compravent 
     ##                    1
 
+Aplicamos funcion PCA, notar que en este caso no haría falta los
+argumentos `SCALE=TRUE` y `CENTER=TRUE` puesto que ya hemos escalado dos
+datos en un paso previo. Por defecto en la función viene el valor de
+`SCALE=FALSE` y `CENTER=TRUE`.
+
 ``` r
-pca <- prcomp(datos2,scale = TRUE)  # Scale=T 
+pca <- prcomp(datos2,center= TRUE,scale = TRUE)  # Scale=T 
 ```
 
-1-3) **Calculamos los coeficientes de la ecuación para cada componente
+**Calculamos los coeficientes de la ecuación para cada componente
 principal**
 
 ``` r
-pca$rotation # Para ver coeficientes de la ecuación para cada componente principal
+pca$rotation
 ```
 
     ##                              PC1         PC2         PC3         PC4
@@ -396,13 +420,17 @@ Por ejemplo, la primera componente principal (PC1), presenta la
 siguiente ecuación, como combinación lineal de las siete variables
 originales:
 
-*P**C*<sub>1</sub> = 0.23*H**i**p**o**t**e**c**a**M**e**d**i**a* + 0.35*I**n**d**i**c**e**d**e**V**i**v**i**e**n**d**a* + 0.18*T**a**s**a**E**j**e**c**H**i**p**o**t**e**c**a**r**i**a**s* + 0.023*H**i**p*100*H* + 0.17*T**a**s**a**P**a**r**o* + 0.34*T**a**s**a**N**a**t**a**l**i**d**a**d* + 0.23*N**u**m**H**i**p* − 0.31*V**V*100*H* − 0.38*I**n**d**E**n**v**e**j* − 0.39*T**a**s**a**M**o**r**t**a**l**i**d**a**d* + 0.27*T**a**s**a**F**e**c**u**n**d**i**d**a**d* + 0.22*A**c**t**i**v**o**s* + 0.22*C**o**m**p**r**a**v**e**n**t*
+$ PC_1 = 0.23 {HipotecaMedia} + 0.35 {IndicedeVivienda} +
+0.18TasaEjecHipotecarias + 0.023 Hip100H + 0.17 TasaParo + 0.34
+TasaNatalidad + 0.23 NumHip -0.31VV100H -0.38IndEnvej
+-0.39TasaMortalidad +0.27TasaFecundidad + 0.22Activos +0.22Compravent$
 
 **Extraemos las nuevas coordenadas de los individuos (puntuaciones)**
 
 Además, podemos ver las puntuaciones, que son las coordenadas de cada
 observación original (Comunidad Autónoma) sobre los nuevos ejes
-construidos (componentes principales).
+construidos (componentes principales). Esto corresponde a un cambio de
+coordenadas bajo el paradigma del Álgebra Lineal.
 
 ``` r
  pca$x
@@ -612,7 +640,7 @@ pca$rotation[,1:4]
 Si nos fijamos en los pesos más altos, podemos darle una interpretación
 a cada eje. Por ejemplo:
 
--   La **primera componente** explica un 50% de la variación. Hay
+-   La **primera componente** explica un 40% de la variación. Hay
     valores absolutos bastante similares y elevados, que son los
     correspondientes con las variables Ind_envej, T_mort, T_nat y
     Tasa_enf. Por lo tanto, parece que la primera componente recoge
@@ -871,8 +899,8 @@ destacadas de las comunidades autónomas en términos del mercado
 hipotecario, el riesgo hipotecario, la estabilidad financiera y la
 demanda futura.
 
-La primera componente (CP1) se relaciona positivamente con el número de
-viviendas vacías por cada 100 mil habitantes y el índice de
+La **primera componente (CP1)** se relaciona positivamente con el número
+de viviendas vacías por cada 100 mil habitantes y el índice de
 envejecimiento. Esto sugiere que las comunidades autónomas con mayores
 tasas de envejecimiento tienen más viviendas vacías, lo que puede ser
 resultado de una menor demanda en el mercado hipotecario debido a la
@@ -880,27 +908,30 @@ baja tasa de natalidad o las herencias. Las comunidades autónomas que
 destacan en esta componente son Ceuta, Melilla, Canarias y Asturias, que
 tienen los mayores índices de envejecimiento y viviendas vacías.
 
-La segunda componente (CP2) se correlaciona negativamente con la tasa de
-ejecuciones hipotecarias, el número de personas activas y el número de
-compraventas en 2021. Las comunidades autónomas con valores altos en
-esta componente son aquellas que tienen menor riesgo hipotecario y una
-mayor estabilidad financiera. Cataluña, Madrid y País Vasco son las
-comunidades autónomas que se destacan en esta componente.
+La **segunda componente (CP2)** se correlaciona negativamente con la
+tasa de ejecuciones hipotecarias, el número de personas activas y el
+número de compraventas en 2021. Las comunidades autónomas con valores
+altos en esta componente son aquellas que tienen menor riesgo
+hipotecario y una mayor estabilidad financiera. Cataluña, Madrid y País
+Vasco son las comunidades autónomas que se destacan en esta componente.
 
-La tercera componente (CP3) está positivamente relacionada con el coste
-medio de las hipotecas y negativamente relacionada con la tasa de
+La **tercera componente (CP3)** está positivamente relacionada con el
+coste medio de las hipotecas y negativamente relacionada con la tasa de
 desempleo. Esto sugiere que las comunidades autónomas con un menor nivel
 de desempleo y con costos de hipoteca más elevados tienen una mayor
 estabilidad financiera y una menor probabilidad de incumplimiento de
 pago. Comunidad de Madrid, Cataluña y País Vasco son las comunidades
 autónomas que se destacan en esta componente.
 
-La cuarta componente (CP4) se correlaciona negativamente con la tasa de
-natalidad, la tasa de fecundidad y el número de hipotecas por cada 100
-mil habitantes. Esto sugiere que las comunidades autónomas con mayores
-tasas de natalidad y fecundidad tienen una mayor demanda futura en el
-mercado hipotecario. La Comunidad Valenciana, Andalucía y Castilla-La
-Mancha son las comunidades autónomas que se destacan en esta componente.
+La **cuarta componente (CP4)** se correlaciona negativamente con la tasa
+de natalidad, la tasa de fecundidad y el número de hipotecas por cada
+100 mil habitantes. Esto sugiere que las comunidades autónomas con
+mayores tasas de natalidad y fecundidad tienen una mayor demanda futura
+en el mercado hipotecario. La Comunidad Valenciana, Andalucía y
+Castilla-La Mancha son las comunidades autónomas que se destacan en esta
+componente.
+
+# Conclusiones
 
 En resumen, las nuevas componentes han permitido identificar patrones y
 características de las comunidades autónomas en términos de mercado
