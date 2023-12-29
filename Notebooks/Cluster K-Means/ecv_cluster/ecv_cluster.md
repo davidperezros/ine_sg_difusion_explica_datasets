@@ -40,14 +40,13 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/ec
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster Jerárquico de las **CCAA** en
+Cluster empleando el procedimiento Cluster K-Means de las **CCAA** en
 función a las variables **taspobex** y **tascar** .
 
 -   Hacer un análisis exploratorio.Ver si hay NA’s y si es necesario
     escalar los datos.
 -   Variables sobre las que se buscan cluster (*taspobex*, *tascar*).
 -   Estandarizar datos y probar cluster k-means con k=3.
--   Elegir Función Distancia y Método de Enlace (o comparar varias).
 -   Interpretar resultados.
 -   Ver métodos Elbrow y Silhouette si hay otro número óptimo de
     clusters y en ese caso repetir el estudio.
@@ -198,16 +197,16 @@ otros con los más cercanos al origen. En cierto modo:
     fronterizos en el que hay mucha inmigración ilegal procedente de
     países como Marruecos.
 
--   En el \*\* cluster rojo\*\* se encuentran las CCAA que presentan una
-    tasa de riesgo de probeza similares a las anteriores pero la de
-    personas con carencia materil alta no es tan grande como en las
-    citadas anteriormente. Estas son Andalucía, Murica y Extremadura,
-    que efectivamnete es común que aparezcan en la prensa anualmente
-    como regiones con más pobreza dentro de España (a excepción de
-    Murica y Valencia) y sin embargo presentan una tasa de personas con
-    carencia material no tan alta como las anteriores peusto que no hay
-    tanta población en situació irregular que pueda derivar en una
-    carencia material sustancial.
+-   En el **cluster rojo** se encuentran las CCAA que presentan una tasa
+    de riesgo de probeza similares a las anteriores pero la de personas
+    con carencia materil alta no es tan grande como en las citadas
+    anteriormente. Estas son Andalucía, Murica y Extremadura, que
+    efectivamnete es común que aparezcan en la prensa anualmente como
+    regiones con más pobreza dentro de España (a excepción de Murica y
+    Valencia) y sin embargo presentan una tasa de personas con carencia
+    material no tan alta como las anteriores peusto que no hay tanta
+    población en situació irregular que pueda derivar en una carencia
+    material sustancial.
 
 -   Por último, el **cluster verde** presenta comunidades que tuvieron
     una incidencia parecida en la primera y segunda ola.

@@ -1404,7 +1404,7 @@ Pérez Ros</p>
 <h1>Introducción</h1>
 <div id="dataset" class="section level2">
 <h2>dataset</h2>
-<p>En este cuaderno vamos a analizar el dataset llamado <a href="https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx"><em>desigualdad_CCAA</em></a>.
+<p>En este cuaderno vamos a analizar el dataset llamado <a href="https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx"><em>desigualdad_CCAA.xlsx</em></a>.
 Este dataset presenta un conjunto de datos sobre el salario medio anual
 de hombres y mujeres en España, relativos a años 2017/18. Los datos
 (relativos a las variables <em>salario medio mujeres, hombres</em> que
@@ -1442,12 +1442,16 @@ Análisis Cluster empleando el procedimiento Cluster Jerárquico de las
 <strong>Salmedmuj</strong> y <strong>Salmedhom</strong> para grupar las
 comunidades por las diferencias de salarios entre sexos.</p>
 <ul>
-<li>Hacer un análisis exploratorio.</li>
-<li>Ver si hay NA’s y si es necesario escalar los datos.</li>
-<li>Plantear variables sobre las que se van a hacer los cluster.</li>
+<li>Hacer un análisis exploratorio.Ver si hay NA’s y si es necesario
+escalar los datos.</li>
+<li>Variables sobre las que se buscan cluster (<em>Salmedmuj</em>,
+<em>Salmedhom</em>).</li>
+<li>Estandarizar datos y probar cluster jerárquico con k=4.</li>
 <li>Elegir Función Distancia y Método de Enlace (o comparar
 varias).</li>
-<li>Interpretar resultados</li>
+<li>Interpretar resultados.</li>
+<li>Ver métodos Elbrow y Silhouette si hay otro número óptimo de
+clusters y en ese caso repetir el estudio.</li>
 </ul>
 </div>
 </div>
@@ -1624,10 +1628,11 @@ mutate.</p>
 hecho tanto por diferencia salarial entre hombre y mujeres y sí por
 cuantía salarial en las diferentes comunidades, para estudiarlo sería
 mejor ver porcentajes que muestren las diferencias. A pesar de ello,
-podemos destacar que en el cluster verde se agrupan las comunidades con
-menor salario medio y en el cluster morado las de mayor salario medio en
-hombres y mujeres. Por medio, se situan el cluster azul y el cluster
-rojo, este último es levemente superior.</p>
+podemos destacar que en el cluster <strong>azul</strong> se agrupan las
+comunidades con menor salario medio y en el cluster
+<strong>morado</strong> las de mayor salario medio en hombres y mujeres.
+Por medio, se situan el cluster azul y el cluster rojo, este último es
+levemente superior.</p>
 </div>
 <div id="con-otros-métodos-de-enlace" class="section level2">
 <h2>Con otros métodos de Enlace</h2>
@@ -1732,7 +1737,9 @@ resultados.</p>
 </div>
 <div id="conclusiones" class="section level1">
 <h1>Conclusiones</h1>
-<p>Aquí se han explicado los supuestos del hierarchical clustering.</p>
+<p>Aquí se han explicado los supuestos del cluster jerárquico por medio
+de un dataset que contiene el salario medio entre hombres y mujeres por
+comunidades autónomas.</p>
 </div>
 <div class="footnotes footnotes-end-of-document">
 <hr />

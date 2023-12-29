@@ -3,7 +3,7 @@
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*desigualdad_CCAA*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx).
+[*desigualdad_CCAA.xlsx*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx).
 Este dataset presenta un conjunto de datos sobre el salario medio anual
 de hombres y mujeres en España, relativos a años 2017/18. Los datos
 (relativos a las variables *salario medio mujeres, hombres* que nos
@@ -45,11 +45,15 @@ Cluster empleando el procedimiento Cluster Jerárquico de las **CCAA** en
 función a las variables **Salmedmuj** y **Salmedhom** para grupar las
 comunidades por las diferencias de salarios entre sexos.
 
--   Hacer un análisis exploratorio.
--   Ver si hay NA’s y si es necesario escalar los datos.
--   Plantear variables sobre las que se van a hacer los cluster.
+-   Hacer un análisis exploratorio.Ver si hay NA’s y si es necesario
+    escalar los datos.
+-   Variables sobre las que se buscan cluster (*Salmedmuj*,
+    *Salmedhom*).
+-   Estandarizar datos y probar cluster jerárquico con k=4.
 -   Elegir Función Distancia y Método de Enlace (o comparar varias).
--   Interpretar resultados
+-   Interpretar resultados.
+-   Ver métodos Elbrow y Silhouette si hay otro número óptimo de
+    clusters y en ese caso repetir el estudio.
 
 # Análisis Exploratorio (EDA[1])
 
@@ -244,10 +248,10 @@ Podemos observar que las agrupaciones, así como el escalado, no se ha
 hecho tanto por diferencia salarial entre hombre y mujeres y sí por
 cuantía salarial en las diferentes comunidades, para estudiarlo sería
 mejor ver porcentajes que muestren las diferencias. A pesar de ello,
-podemos destacar que en el cluster verde se agrupan las comunidades con
-menor salario medio y en el cluster morado las de mayor salario medio en
-hombres y mujeres. Por medio, se situan el cluster azul y el cluster
-rojo, este último es levemente superior.
+podemos destacar que en el cluster **azul** se agrupan las comunidades
+con menor salario medio y en el cluster **morado** las de mayor salario
+medio en hombres y mujeres. Por medio, se situan el cluster azul y el
+cluster rojo, este último es levemente superior.
 
 ## Con otros métodos de Enlace
 
@@ -381,7 +385,9 @@ clusters igual a 2 e intentar analizar de neuvo los resultados.
 
 # Conclusiones
 
-Aquí se han explicado los supuestos del hierarchical clustering.
+Aquí se han explicado los supuestos del cluster jerárquico por medio de
+un dataset que contiene el salario medio entre hombres y mujeres por
+comunidades autónomas.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de

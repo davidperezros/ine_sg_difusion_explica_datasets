@@ -1401,7 +1401,7 @@ Pérez Ros</p>
 <h1>Introducción</h1>
 <div id="dataset" class="section level2">
 <h2>dataset</h2>
-<p>En este cuaderno vamos a analizar el dataset llamado <a href="https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx"><em>desigualdad_CCAA</em></a>.
+<p>En este cuaderno vamos a analizar el dataset llamado <a href="https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/b36d1df68ab5c1e1bacef176e8f0603cde2803e0/Datasets/desigualdad_CCAA.xlsx"><em>desigualdad_CCAA.xlsx</em></a>.
 Este dataset presenta un conjunto de datos sobre el salario medio anual
 de hombres y mujeres en España, relativos a años 2017/18. Los datos
 (relativos a las variables <em>salario medio mujeres, hombres</em> que
@@ -1439,12 +1439,14 @@ Análisis Cluster empleando el procedimiento Cluster Jerárquico de las
 <strong>Salmedmuj</strong> y <strong>Salmedhom</strong> para grupar las
 comunidades por las diferencias de salarios entre sexos.</p>
 <ul>
-<li>Hacer un análisis exploratorio.</li>
-<li>Ver si hay NA’s y si es necesario escalar los datos.</li>
-<li>Plantear variables sobre las que se van a hacer los cluster.</li>
-<li>Elegir Función Distancia y Método de Enlace (o comparar
-varias).</li>
-<li>Interpretar resultados</li>
+<li>Hacer un análisis exploratorio.Ver si hay NA’s y si es necesario
+escalar los datos.</li>
+<li>Variables sobre las que se buscan cluster (<em>Salmedmuj</em>,
+<em>Salmedhom</em>).</li>
+<li>Estandarizar datos y probar cluster k-means con k=4.</li>
+<li>Interpretar resultados.</li>
+<li>Ver métodos Elbrow y Silhouette si hay otro número óptimo de
+clusters y en ese caso repetir el estudio.</li>
 </ul>
 </div>
 </div>
@@ -1647,7 +1649,9 @@ mejor cohesión intra-cluster y separación inter-cluster.</p>
 <p><strong>NOTA</strong>: Ahora podríamos repetir el estudio anterior
 con el número de clusters igual a 5 e intentar analizar de neuvo los
 resultados. # Conclusiones</p>
-<p>Aquí se han explicado los supuestos del hierarchical clustering.</p>
+<p>Aquí se han explicado los supuestos del K-MEANS clustering por medio
+de un dataset que contiene el salario medio entre hombres y mujeres por
+comunidades autónomas.</p>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
