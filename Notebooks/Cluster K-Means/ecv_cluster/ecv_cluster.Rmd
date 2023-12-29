@@ -4,11 +4,11 @@ subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
-  md_document:
-    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
+  md_document:
+    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -225,4 +225,4 @@ fviz_cluster(k1, data = resultado) # plot
 # Conclusiones
 
 
-Aquí se han explicado los supuestos del cluster jerárquico con un dataset en el que se han creado clusters de CCAA según tasa de riesgo de pobreza y la carencia material. La evidencia nos ha mostrado que se tiende a grupar las comunidades con incidencias más altas por un lado y más bajas por otro.
+Aquí se han explicado los supuestos del cluster K-MEANS con un dataset en el que se han creado clusters de CCAA según tasa de riesgo de pobreza y la carencia material. La evidencia nos ha mostrado que se tiende a grupar las comunidades con incidencias más altas por un lado y más bajas por otro.

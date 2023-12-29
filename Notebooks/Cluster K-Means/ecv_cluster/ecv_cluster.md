@@ -374,11 +374,11 @@ fviz_cluster(k1, data = resultado) # plot
 
 # Conclusiones
 
-Aquí se han explicado los supuestos del cluster jerárquico con un
-dataset en el que se han creado clusters de CCAA según tasa de riesgo de
-pobreza y la carencia material. La evidencia nos ha mostrado que se
-tiende a grupar las comunidades con incidencias más altas por un lado y
-más bajas por otro.
+Aquí se han explicado los supuestos del cluster K-MEANS con un dataset
+en el que se han creado clusters de CCAA según tasa de riesgo de pobreza
+y la carencia material. La evidencia nos ha mostrado que se tiende a
+grupar las comunidades con incidencias más altas por un lado y más bajas
+por otro.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de

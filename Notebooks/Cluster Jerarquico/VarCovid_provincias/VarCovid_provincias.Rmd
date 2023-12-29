@@ -4,11 +4,11 @@ subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
+  md_document:
+    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
-  md_document:
-    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 ## dataset
 
 En este cuaderno vamos a analizar el dataset llamado
-[*VarCovid_provincias*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/VarCovid_provincias.xlsx), elaborado a partir de los datos publicados por el INE. Este dataset está compuesto por el número de fallecidos durante las semanas que duraron las respectivas olas, así como un promedio entre los años 2017, 2018 y 2019 del número de fallecidos en esas mismas semanas y la tasa de variación entre ambas para ver el exceso de muertes que se ha producido. Esta última variable será la que nosotros utilicemos en nuestro estudio.
+[*VarCovid_provincias.xlsx*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/93774ea45559a2fec3bf0d6b9b6b3cd1066b730b/Datasets/VarCovid_provincias.xlsx), elaborado a partir de los datos publicados por el INE. Este dataset está compuesto por el número de fallecidos durante las semanas que duraron las respectivas olas, así como un promedio entre los años 2017, 2018 y 2019 del número de fallecidos en esas mismas semanas y la tasa de variación entre ambas para ver el exceso de muertes que se ha producido. Esta última variable será la que nosotros utilicemos en nuestro estudio.
 
 
 -   **provincia**: provincia
@@ -68,14 +68,15 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/Va
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer un Análisis
-Cluster empleando el procedimiento Cluster Jerárquico de las **ccaa** en
+Cluster empleando el procedimiento Cluster Jerárquico de las **provincias** en
 función a las variables **1Ola** y **2Ola**.
 
 -   Hacer un análisis exploratorio.
 -   Ver si hay NA's y si es necesario escalar los datos.
 -   Plantear variables sobre las que se van a hacer los cluster.
--  Elegir Función Distancia y Método de Enlace (o comparar varias).
--  Interpretar resultados
+-  Interpretar resultados.
+-  Ver métodos Elbrow y Silhouette si hay otro número óptimo de clusters y en ese caso repetir el estudio.
+
 
 
 # Análisis Exploratorio (EDA[^1])
@@ -172,7 +173,7 @@ resultado <- datos[, c("1Ola", "2Ola")]
 
 resultado <- scale(resultado) #scaling/standardizing
 rownames(resultado) <- datos$provincia # Para que nos salgan luego los nombres
-comunidades <- datos$provincia
+provincias <- datos$provincia
 
 # Matriz de distancias
 d <- dist(resultado, method = "euclidean")
@@ -206,20 +207,32 @@ Podemos mostrar los grupos junto al dataframe con la función mutate.
 ```{r,fig.align='center'}
 
 
+# Mostrar Clusters
+datos %>%
+  mutate(cluster = sub1) %>%
+  head()
 
-colnames(datos)<-c( "provincia","1Ola","2Ola")
+datos <- datos[,c("provincia","1Ola","2Ola")]
+colnames(datos)<-c( "provincia","PrimOla","SegOla" )
+resultado <- as.data.frame(resultado)
+resultado$provincia <-datos$provincia
+colnames(resultado)<-c( "PrimOla","SegOla" ,"provincia")
 
 
 
 # Gráfico de puntos
-g1<- ggplot(datos, aes(1Ola, 2Ola, label=provincia))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
+g1<- ggplot(datos, aes(PrimOla, SegOla, label=provincia))+ geom_point(aes(colour = factor(sub1)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub1)))+labs(colour="Clusters")
 
 g1
 
 
+
+
 ```
 
-**Del anterior gráfico y de los clusters pordemos concluir**: hay grandes diferencias entre los tres clusters. El **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
+**Del anterior gráfico y de los clusters pordemos concluir**: hay grandes diferencias entre los tres clusters. El **Cluster Verde** corresponde a las provincias donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de las provincias relativas a la comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Azul** corresponde a las provincias donde se produjo un mayor exceso de fallecidos en la segunda ola, como  son los casos de las provincias relativas a la comunidad de Aragón y Melilla en general. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
+
+Notar que estos resultados son en gran medida coherentes con los presentados en el mismo estudio por provincias Autónomas en vez de por provincias.
 
 
 
@@ -261,13 +274,13 @@ rect.hclust(hc4, k = 3, border = 2:5)
 
 
 ```{r,echo=FALSE}
- g2<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub2)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub2)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+ g2<-ggplot(datos, aes(PrimOla, SegOla, label=provincia))+ geom_point(aes(colour = factor(sub2)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub2)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
         axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
 
- g3<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub3)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub3)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+ g3<-ggplot(datos, aes(PrimOla, SegOla, label=provincia))+ geom_point(aes(colour = factor(sub3)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub3)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
         axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
  
-  g4<-ggplot(datos, aes(PrimOla, SegOla, label=ccaa))+ geom_point(aes(colour = factor(sub4)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub4)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
+  g4<-ggplot(datos, aes(PrimOla, SegOla, label=provincia))+ geom_point(aes(colour = factor(sub4)))+geom_text(hjust=0, vjust=0, size = 2,aes(colour = factor(sub4)))+labs(colour="Clusters")+theme(axis.text=element_text(size=6),
         axis.title=element_text(size=6,face="bold"),legend.title=element_text(size=6))
   
   
@@ -280,15 +293,15 @@ rect.hclust(hc4, k = 3, border = 2:5)
 ```
 
 
-De 4 tipos diferentes que hemos probado, nos salen 3 que se han clusterizado de igual manera, luego parece razonable la interpretación anterior. Para todos casos menos el de `ward`, el **Cluster Azul** corresponde a las comunidades donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior, son los casos de la Comunidad de Madrid y Castilla-La Mancha. En cambio, el **Cluster Verde** corresponde a las comunidades donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
+De 4 tipos diferentes que hemos probado, nos salen 3 que se han clusterizado de igual manera, luego parece razonable la interpretación anterior. Para todos casos menos el de `ward`, el **Cluster Verde** corresponde a las provincias donde la primera ola de COVID generó un gran exceso de mortalidad respecto al año anterior,  son los casos de las provincias relativas a la comunidad de Madrid y Castilla la Mancha. En cambio, el **Cluster Azul** corresponde a las provincias donde se produjo un mayor exceso de fallecidos en la segunda ola, como son los casos de Melilla y Aragón. El **Cluster Rojo** corresponde a las provincias donde hubo un exceso de fallecidos más parecido entre ambas olas, aunque podemos observar algunas diferencias entre algunas de ellas, por ejemplo, en Cataluña hubo un mayor exceso en la primera y en Ceuta hubo un mayor exceso en la segunda.
 Resumiendo:
 
 
--   El **cluster azul** representa las CCAA donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la primera que en la segunda ola, es decir, hubo más muertes en la primera que en la segunda ola. Notar que en este cluster encontramos la comunidad con más población y flujo de visitantes del país, Comunidad de Madrid , luego tiene sentido que fuera la pionera en tener una tasa alta de muertes. Además, durante las primeras semanas de virus en España, fueron Castilla-La Mancha y Madrid las que presentaban peores números.
+-   El **cluster azul** representa las provincia donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la primera que en la segunda ola, es decir, hubo más muertes en la primera que en la segunda ola. Notar que en este cluster encontramos la provincia con más población y flujo de visitantes del país, provincia de Madrid , luego tiene sentido que fuera la pionera en tener una tasa alta de muertes. Además, durante las primeras semanas de virus en España, fueron Castilla-La Mancha y Madrid las que presentaban peores números.
 
--   El **cluster verde** representa las CCAA donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la segunda que en la primera ola, es decir, hubo más muertes en la segunda que en la primera ola. Notar, que a excepción de Melilla, Aragóon es una comunidad con gran población residente en núcleos rurales y por ello la propagación del virus tardó en extenderse. Debido a que no tienen grandes ciudades esta propagación inicial fue más lenta y por ello la segunda ola causo más exceso de mortalidad que la priemra.
+-   El **cluster verde** representa las provincia donde el exceso de mortalidad respecto al año anterior fue mucho mayor en la segunda que en la primera ola, es decir, hubo más muertes en la segunda que en la primera ola. Notar, que a excepción de Melilla, Aragóon es una provincia con gran población residente en núcleos rurales y por ello la propagación del virus tardó en extenderse. Debido a que no tienen grandes ciudades esta propagación inicial fue más lenta y por ello la segunda ola causo más exceso de mortalidad que la priemra.
 
-- Por último, el **cluster rojo** presenta comunidades que tuvieron una incidencia parecida en la primera y segunda ola. 
+- Por último, el **cluster rojo** presenta provincias que tuvieron una incidencia parecida en la primera y segunda ola. 
 
 
 
