@@ -18,7 +18,7 @@ El repositorio está distribuido en diferentes carpetas con el fin de organizar 
 
 | Dataset             | Técnica Estadística | Descripción         |
 |---------------------|---------------------|---------------------|
-| IMCV                | Regresión           | Lineal              |
+| IMCV_reg            | Regresión           | Lineal              |
 | suicidios2019CCAA   | Regresión Lineal    | Lineal              |
 | ECV_microdatos      | Clasificación       | Reg. Logística      |
 | Partos              | Clasificación       | Reg. Logística      |
@@ -30,7 +30,9 @@ El repositorio está distribuido en diferentes carpetas con el fin de organizar 
 | desigualdad_ccaa    | Cluster             | K-Means             |
 | ECV_cluster         | Cluster             | Jerárquico          |
 | ECV_cluster         | Cluster             | K-Means             |
-| MercadoHipotecas    | Red. Dimensi        | PCA.                |
+| MercadoHipotecas    | Red. Dimension      | PCA                 |
+| IMCV_pca            | Red. Dimension      | PCA.                |
+
 
 
 
