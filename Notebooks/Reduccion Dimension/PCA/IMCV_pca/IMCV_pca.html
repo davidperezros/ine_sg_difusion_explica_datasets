@@ -1403,7 +1403,7 @@ de las nueve <strong>dimensiones relativas a la calidad de vida que
 componen el Índice Multidimensional de Calidad de Vida (IMCV)</strong>,
 una estadística con carácter experimental. Datos correspondientes al año
 2020.</p>
-<p>Concretamente tenemos las siguietnes variables:</p>
+<p>Concretamente tenemos las siguientes variables:</p>
 <ul>
 <li><strong>indice_total</strong>: Índice multidimensional de calidad de
 vida teniendo en cuenta las nueve dimensiones.</li>
@@ -1771,13 +1771,7 @@ cuenta la correlación de la variable consigo misma, pues siempre será
 del 100%, o 1 en tanto por uno.</p>
 <p>En términos absolutos, vemos lo siguiente:</p>
 <ul>
-<li><strong>dim1</strong> : Indicador sobre las condiciones materiales
-de vida.</li>
-<li><strong>dim2</strong> : Indicador sobre el trabajo.</li>
-<li><strong>dim3</strong> : Indicador sobre la salud.</li>
-<li><strong>dim4</strong> : Indicador sobre la eduación.</li>
-</ul>
-<p>-Hay varias <strong>correlaciones moderadas/altas</strong>. En
+<li><p>Hay varias <strong>correlaciones moderadas/altas</strong>. En
 general la variable <em>indice_total</em> esta muy correlacionada con
 todas las demas. Esto parece razonable puesto que sabemos que es la
 media artimética de las otras nueve dimenesiones. Es por ello que no
@@ -1789,11 +1783,10 @@ llevar más satisfacción en los estudios, en el trabajo y en las
 condiciones materiales (puesto que se suele ganar más dinero) y esto
 puede derivar en menos problemas de salud debido a una vida “más
 tranquila. También hay correlaciones altas entre <em>dim1</em> y
-<em>dim8</em>, y entre <em>dim7</em> y <em>dim8</em>.</p>
-<ul>
-<li>Hay <strong>correlaciones muy bajas</strong> entre <em>dim8</em>
+<em>dim8</em>, y entre <em>dim7</em> y <em>dim8</em>.</p></li>
+<li><p>Hay <strong>correlaciones muy bajas</strong> entre <em>dim8</em>
 (entorno y el medioambiente) y <em>dim9</em> (satisfacción
-general).</li>
+general).</p></li>
 </ul>
 <p>En resumen, vemos que hay varias variables con una alta correlación
 absoluta(tanto postivia como negativa), luego esto nos va a permitir
@@ -1830,8 +1823,7 @@ domine el análisis debido a su escala.</p></li>
 covarianzas</strong>: Dependiendo del enfoque, se puede trabajar con la
 matriz de correlaciones si se busca abordar fuertes correlaciones entre
 variables, o con la matriz de covarianzas si se busca la varianza total
-de las variables.</p></li>
-</ol>
+de las variables.</p>
 <ul>
 <li><strong>NOTA</strong>: Aconsejable trabajar siempre con la matriz de
 correlaciones (a no ser que todas variables estén en las mismas
@@ -1839,8 +1831,7 @@ unidades, que se podrá usar la matriz de covarianzas). De no seguir esta
 nota y usar la matriz de covarianzas, las variables que tienen mayores
 unidades dominarán la estructura de covarianza, lo que llevará a una
 representación inexacta de la variabilidad real de los datos.</li>
-</ul>
-<ol start="3" style="list-style-type: decimal">
+</ul></li>
 <li><p><strong>Descomposición de la matriz</strong>: Se descompone la
 matriz de correlaciones en sus vectores y valores propios. Los valores
 propios representan la cantidad de varianza explicada por cada
@@ -1945,8 +1936,9 @@ información recoge cada una de ellas.</p>
 <p>Por ejemplo, la primera componente principal (PC1), presenta la
 siguiente ecuación, como combinación lineal de las 10 variables
 originales (los 9 indices y el total):</p>
-<p>$ PC_1 = 0.41 {dim1} + 0.39 {dim2} + 0.31dim3 + 0.34 dim4 + 0.21 dim5
-+ 0.26 dim6 -0.01 dim7 +0.39dim8 +0.02dim9 +0.42indice_total $</p>
+<p><span class="math inline">\(PC_1 = 0.41 {dim1} + 0.39 {dim2} +
+0.31dim3 + 0.34 dim4 + 0.21 dim5 + 0.26 dim6 -0.01 dim7 +0.39dim8
++0.02dim9 +0.42indice_total\)</span></p>
 <p><strong>Extraemos las nuevas coordenadas de los individuos
 (puntuaciones)</strong></p>
 <p>Además, podemos ver las puntuaciones, que son las coordenadas de cada

@@ -4,11 +4,11 @@ subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "diciembre 2023"
 output: 
+  md_document:
+    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
-  md_document:
-    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -34,7 +34,7 @@ En el siguiente dataset disponemos de datos por Comunidades Autónomas de
 las nueve **dimensiones relativas a la calidad de vida que componen el Índice Multidimensional de Calidad de Vida (IMCV)**, una estadística con
 carácter experimental. Datos correspondientes al año 2020.
 
-Concretamente tenemos las siguietnes variables:
+Concretamente tenemos las siguientes variables:
 
 -   **indice_total**: Índice multidimensional de calidad de vida
     teniendo en cuenta las nueve dimensiones.
@@ -139,12 +139,7 @@ En este caso, se ha generado un gráfico entre variables, sin tener en cuenta la
 
 En términos absolutos, vemos lo siguiente:
 
--   **dim1** : Indicador sobre las condiciones materiales de vida.
--   **dim2** : Indicador sobre el trabajo.
--   **dim3** : Indicador sobre la salud.
--   **dim4** : Indicador sobre la eduación.
-
-  -Hay varias **correlaciones moderadas/altas**. En general la variable *indice_total* esta muy correlacionada con todas las demas. Esto parece razonable puesto que sabemos que es la media artimética de las otras nueve dimenesiones. Es por ello que no aporta nada de información extra. Además destaca la correlación entre *dim1* (materiales), *dim2* (trabajo), *dim3*(salud) y *dim4* (educacion) entre todas ellas. Esto también podria parecer razonable puesto que una mejor educación suele llevar más satisfacción en los estudios, en el trabajo y en las condiciones materiales (puesto que se suele ganar más dinero) y esto puede derivar en menos problemas de salud debido a una vida "más tranquila. También hay correlaciones altas entre *dim1* y *dim8*, y entre *dim7* y *dim8*.
+ - Hay varias **correlaciones moderadas/altas**. En general la variable *indice_total* esta muy correlacionada con todas las demas. Esto parece razonable puesto que sabemos que es la media artimética de las otras nueve dimenesiones. Es por ello que no aporta nada de información extra. Además destaca la correlación entre *dim1* (materiales), *dim2* (trabajo), *dim3*(salud) y *dim4* (educacion) entre todas ellas. Esto también podria parecer razonable puesto que una mejor educación suele llevar más satisfacción en los estudios, en el trabajo y en las condiciones materiales (puesto que se suele ganar más dinero) y esto puede derivar en menos problemas de salud debido a una vida "más tranquila. También hay correlaciones altas entre *dim1* y *dim8*, y entre *dim7* y *dim8*.
   
   - Hay **correlaciones muy bajas** entre *dim8* (entorno y el medioambiente) y *dim9* (satisfacción general).
 
@@ -170,7 +165,7 @@ Los pasos generales son:
 
 2. **Cálculo de la matriz de correlaciones o covarianzas**: Dependiendo del enfoque, se puede trabajar con la matriz de correlaciones si se busca abordar fuertes correlaciones entre variables, o con la matriz de covarianzas si se busca la varianza total de las variables.
 
-  - **NOTA**: Aconsejable trabajar siempre con la matriz de correlaciones (a no ser que todas variables estén en las mismas unidades, que se podrá usar la matriz de covarianzas). De no seguir esta nota y usar la matriz de covarianzas, las variables que tienen mayores unidades dominarán la estructura de covarianza, lo que llevará a una representación inexacta de la variabilidad real de los datos.
+    - **NOTA**: Aconsejable trabajar siempre con la matriz de correlaciones (a no ser que todas variables estén en las mismas unidades, que se podrá usar la matriz de covarianzas). De no seguir esta nota y usar la matriz de covarianzas, las variables que tienen mayores unidades dominarán la estructura de covarianza, lo que llevará a una representación inexacta de la variabilidad real de los datos.
 
 3. **Descomposición de la matriz**: Se descompone la matriz de correlaciones en sus vectores y valores propios. Los valores propios representan la cantidad de varianza explicada por cada componente principal, mientras que los vectores propios (autovectores) determinan la dirección de cada componente en el espacio multidimensional original.
 
@@ -220,7 +215,7 @@ Podemos observar aquí nuestras variables en el nuevo sistema de cordenadas (las
 
 Por ejemplo, la primera componente principal (PC1), presenta la siguiente ecuación, como combinación lineal de las 10 variables originales (los 9 indices y el total):
 
-$ PC_1 = 0.41 {dim1} + 0.39 {dim2} + 0.31dim3 + 0.34 dim4 + 0.21 dim5 + 0.26 dim6 -0.01 dim7 +0.39dim8 +0.02dim9 +0.42indice_total $
+$PC_1 = 0.41 {dim1} + 0.39 {dim2} + 0.31dim3 + 0.34 dim4 + 0.21 dim5 + 0.26 dim6 -0.01 dim7 +0.39dim8 +0.02dim9 +0.42indice_total$
 
 
 

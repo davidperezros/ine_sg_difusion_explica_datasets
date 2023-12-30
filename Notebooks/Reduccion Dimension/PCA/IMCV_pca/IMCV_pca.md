@@ -10,7 +10,7 @@ las nueve **dimensiones relativas a la calidad de vida que componen el
 Índice Multidimensional de Calidad de Vida (IMCV)**, una estadística con
 carácter experimental. Datos correspondientes al año 2020.
 
-Concretamente tenemos las siguietnes variables:
+Concretamente tenemos las siguientes variables:
 
 -   **indice_total**: Índice multidimensional de calidad de vida
     teniendo en cuenta las nueve dimensiones.
@@ -192,23 +192,18 @@ del 100%, o 1 en tanto por uno.
 
 En términos absolutos, vemos lo siguiente:
 
--   **dim1** : Indicador sobre las condiciones materiales de vida.
--   **dim2** : Indicador sobre el trabajo.
--   **dim3** : Indicador sobre la salud.
--   **dim4** : Indicador sobre la eduación.
-
--Hay varias **correlaciones moderadas/altas**. En general la variable
-*indice_total* esta muy correlacionada con todas las demas. Esto parece
-razonable puesto que sabemos que es la media artimética de las otras
-nueve dimenesiones. Es por ello que no aporta nada de información extra.
-Además destaca la correlación entre *dim1* (materiales), *dim2*
-(trabajo), *dim3*(salud) y *dim4* (educacion) entre todas ellas. Esto
-también podria parecer razonable puesto que una mejor educación suele
-llevar más satisfacción en los estudios, en el trabajo y en las
-condiciones materiales (puesto que se suele ganar más dinero) y esto
-puede derivar en menos problemas de salud debido a una vida “más
-tranquila. También hay correlaciones altas entre *dim1* y *dim8*, y
-entre *dim7* y *dim8*.
+-   Hay varias **correlaciones moderadas/altas**. En general la variable
+    *indice_total* esta muy correlacionada con todas las demas. Esto
+    parece razonable puesto que sabemos que es la media artimética de
+    las otras nueve dimenesiones. Es por ello que no aporta nada de
+    información extra. Además destaca la correlación entre *dim1*
+    (materiales), *dim2* (trabajo), *dim3*(salud) y *dim4* (educacion)
+    entre todas ellas. Esto también podria parecer razonable puesto que
+    una mejor educación suele llevar más satisfacción en los estudios,
+    en el trabajo y en las condiciones materiales (puesto que se suele
+    ganar más dinero) y esto puede derivar en menos problemas de salud
+    debido a una vida “más tranquila. También hay correlaciones altas
+    entre *dim1* y *dim8*, y entre *dim7* y *dim8*.
 
 -   Hay **correlaciones muy bajas** entre *dim8* (entorno y el
     medioambiente) y *dim9* (satisfacción general).
@@ -252,28 +247,28 @@ Los pasos generales son:
     busca abordar fuertes correlaciones entre variables, o con la matriz
     de covarianzas si se busca la varianza total de las variables.
 
--   **NOTA**: Aconsejable trabajar siempre con la matriz de
-    correlaciones (a no ser que todas variables estén en las mismas
-    unidades, que se podrá usar la matriz de covarianzas). De no seguir
-    esta nota y usar la matriz de covarianzas, las variables que tienen
-    mayores unidades dominarán la estructura de covarianza, lo que
-    llevará a una representación inexacta de la variabilidad real de los
-    datos.
+    -   **NOTA**: Aconsejable trabajar siempre con la matriz de
+        correlaciones (a no ser que todas variables estén en las mismas
+        unidades, que se podrá usar la matriz de covarianzas). De no
+        seguir esta nota y usar la matriz de covarianzas, las variables
+        que tienen mayores unidades dominarán la estructura de
+        covarianza, lo que llevará a una representación inexacta de la
+        variabilidad real de los datos.
 
-1.  **Descomposición de la matriz**: Se descompone la matriz de
+3.  **Descomposición de la matriz**: Se descompone la matriz de
     correlaciones en sus vectores y valores propios. Los valores propios
     representan la cantidad de varianza explicada por cada componente
     principal, mientras que los vectores propios (autovectores)
     determinan la dirección de cada componente en el espacio
     multidimensional original.
 
-2.  **Selección de componentes**: Los componentes se ordenan de manera
+4.  **Selección de componentes**: Los componentes se ordenan de manera
     descendente según la cantidad de varianza que explican. Los primeros
     componentes capturan la mayor variabilidad de los datos y se
     seleccionan para reducir la dimensionalidad manteniendo la
     información más relevante.
 
-3.  **Transformación de datos**: Proyectar los datos originales en el
+5.  **Transformación de datos**: Proyectar los datos originales en el
     espacio de los componentes principales para obtener las nuevas
     variables. Estas son combinaciones lineales de las variables
     originales y son ortogonales entre sí. Esta transformación lineal
@@ -281,7 +276,7 @@ Los pasos generales son:
     dimensión, lo que facilita el análisis y la visualización de los
     datos**.
 
-4.  **Interpretación y visualización**: Explorar la importancia de cada
+6.  **Interpretación y visualización**: Explorar la importancia de cada
     componente en términos de la variabilidad explicada. Se pueden
     interpretar los componentes para comprender qué aspectos de los
     datos capturan. Si es posible, representar gráficamente los datos en
@@ -389,8 +384,7 @@ Por ejemplo, la primera componente principal (PC1), presenta la
 siguiente ecuación, como combinación lineal de las 10 variables
 originales (los 9 indices y el total):
 
-$ PC_1 = 0.41 {dim1} + 0.39 {dim2} + 0.31dim3 + 0.34 dim4 + 0.21 dim5 +
-0.26 dim6 -0.01 dim7 +0.39dim8 +0.02dim9 +0.42indice_total $
+*P**C*<sub>1</sub> = 0.41*d**i**m*1 + 0.39*d**i**m*2 + 0.31*d**i**m*3 + 0.34*d**i**m*4 + 0.21*d**i**m*5 + 0.26*d**i**m*6 − 0.01*d**i**m*7 + 0.39*d**i**m*8 + 0.02*d**i**m*9 + 0.42*i**n**d**i**c**e*<sub>*t*</sub>*o**t**a**l*
 
 **Extraemos las nuevas coordenadas de los individuos (puntuaciones)**
 
