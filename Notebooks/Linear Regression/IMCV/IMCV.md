@@ -37,7 +37,7 @@ variable **indice_total** es la media artimética de las 9 dimensiones.
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer una regresión
-ineal que explique el índice total en función de las dimensiones (sin
+lineal que explique el índice total en función de las dimensiones (sin
 tener en centa la var. comunidad autónoma).
 
 -   Hacer un análisis exploratorio.
@@ -46,13 +46,6 @@ tener en centa la var. comunidad autónoma).
 -   Analizar el modelo planteado y su ajuste de bondad.
 -   Comprobar hipótesis de regresión.
 -   Hacer una conclusión.
-
-## Técncnica Estadística
-
-El objetivo es realizar una regresión lineal múltiple para predecir la
-variable **indice_total** en función de las demás variables
-(**dim1,…,dim8**). Para ver su ajuste miraremos los gráficos pertinentes
-y las medidas que se derivan de la regresión.
 
 # Análisis Exploratorio (EDA[1])
 
@@ -74,7 +67,7 @@ necesario realizar ninguna técnica para imputar los missing values o
 borrar observaciones.
 
 ``` r
-IMCV <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/Datasets/Datos/David/Nuevos/IMCV_nuevo.xlsx",sheet = "Datos")
+IMCV <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/IMCV_reg.xlsx",sheet = "Datos")
 ```
 
 ``` r
@@ -105,7 +98,7 @@ parecidas).
 | dim6         | 93.00 | 100.00 | 103.00 | 103.00 | 107.00 | 109.00 |
 | dim7         | 91.00 | 97.00  | 100.00 | 100.00 | 102.00 | 109.00 |
 | dim8         | 93.00 | 99.00  | 103.00 | 103.00 | 106.00 | 109.00 |
-| indice_total | 97.00 | 100.00 | 102.00 | 102.00 | 103.00 | 106.00 |
+| indice_total | 96.00 | 100.00 | 102.00 | 102.00 | 103.00 | 106.00 |
 
 Table showing the measures of interest.
 
@@ -201,26 +194,26 @@ summary(lm1)
     ##     dim6 + dim7 + dim8, data = IMCV)
     ## 
     ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -0.59079 -0.11663 -0.00332  0.17065  0.68059 
+    ##        Min         1Q     Median         3Q        Max 
+    ## -1.461e-14 -7.943e-15 -8.440e-16  2.969e-15  3.591e-14 
     ## 
     ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  4.87654    7.54594   0.646  0.53137    
-    ## dim1         0.03829    0.09152   0.418  0.68375    
-    ## dim2         0.12152    0.09862   1.232  0.24356    
-    ## dim3         0.10864    0.10245   1.060  0.31166    
-    ## dim4         0.10420    0.04059   2.567  0.02619 *  
-    ## dim5         0.16005    0.04142   3.864  0.00264 ** 
-    ## dim6         0.06565    0.04992   1.315  0.21526    
-    ## dim7         0.16343    0.02294   7.125 1.93e-05 ***
-    ## dim8         0.19494    0.06510   2.995  0.01220 *  
+    ##               Estimate Std. Error    t value Pr(>|t|)    
+    ## (Intercept) -1.879e-13  2.666e-13 -7.050e-01    0.496    
+    ## dim1         1.250e-01  3.234e-15  3.866e+13   <2e-16 ***
+    ## dim2         1.250e-01  3.484e-15  3.588e+13   <2e-16 ***
+    ## dim3         1.250e-01  3.619e-15  3.454e+13   <2e-16 ***
+    ## dim4         1.250e-01  1.434e-15  8.716e+13   <2e-16 ***
+    ## dim5         1.250e-01  1.463e-15  8.541e+13   <2e-16 ***
+    ## dim6         1.250e-01  1.764e-15  7.087e+13   <2e-16 ***
+    ## dim7         1.250e-01  8.104e-16  1.543e+14   <2e-16 ***
+    ## dim8         1.250e-01  2.300e-15  5.435e+13   <2e-16 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.4157 on 11 degrees of freedom
-    ## Multiple R-squared:  0.9812, Adjusted R-squared:  0.9675 
-    ## F-statistic: 71.68 on 8 and 11 DF,  p-value: 2.132e-08
+    ## Residual standard error: 1.469e-14 on 11 degrees of freedom
+    ## Multiple R-squared:      1,  Adjusted R-squared:      1 
+    ## F-statistic: 6.8e+28 on 8 and 11 DF,  p-value: < 2.2e-16
 
 A primera vista vemos un valor de **Multiple R-squared: 0.9812,**, lo
 cual es bastante alto y por tanto nuestro modelo parece capturar bien la
@@ -259,8 +252,8 @@ outlierTest(lm1)
 
     ## No Studentized residuals with Bonferroni p < 0.05
     ## Largest |rstudent|:
-    ##     rstudent unadjusted p-value Bonferroni p
-    ## 13 -2.616524           0.025751      0.51502
+    ##   rstudent unadjusted p-value Bonferroni p
+    ## 1  3.73407          0.0038843     0.077685
 
 ## Test homocedasticidad
 
@@ -286,7 +279,7 @@ bptest(indice_total~dim1+dim2+dim3+dim4+dim5+dim6+dim7+dim8 ,data=IMCV, varformu
     ##  Breusch-Pagan test
     ## 
     ## data:  indice_total ~ dim1 + dim2 + dim3 + dim4 + dim5 + dim6 + dim7 +     dim8
-    ## BP = 0.073925, df = 1, p-value = 0.7857
+    ## BP = 0.0047152, df = 1, p-value = 0.9453
 
 Si el valor p obtenido de la prueba de Breusch-Pagan es 0.7,
 interpretaríamos esto como evidencia insuficiente para rechazar la
@@ -316,7 +309,7 @@ shapiro.test(lm1$residuals)
     ##  Shapiro-Wilk normality test
     ## 
     ## data:  lm1$residuals
-    ## W = 0.96095, p-value = 0.563
+    ## W = 0.85587, p-value = 0.006695
 
 Aceptamos la normalidad de los residuos puesto que el
 *p* − *v**a**l**u**e* \> 0.05.
@@ -335,7 +328,7 @@ resettest(indice_total~dim1+dim2+dim3+dim4+dim5+dim6+dim7+dim8 ,data=IMCV, power
     ##  RESET test
     ## 
     ## data:  indice_total ~ dim1 + dim2 + dim3 + dim4 + dim5 + dim6 + dim7 +     dim8
-    ## RESET = 1.5134, df1 = 8, df2 = 3, p-value = 0.4011
+    ## RESET = 26.638, df1 = 8, df2 = 3, p-value = 0.01047
 
 Aceptamos la linealidad puesto que el *p* − *v**a**l**u**e* \> 0.05, a
 un nivel de significancia de *α* = 0.05.
@@ -377,16 +370,16 @@ anova(lm1)
     ## Analysis of Variance Table
     ## 
     ## Response: indice_total
-    ##           Df Sum Sq Mean Sq  F value    Pr(>F)    
-    ## dim1       1 70.461  70.461 407.6604 4.827e-10 ***
-    ## dim2       1  5.708   5.708  33.0250 0.0001290 ***
-    ## dim3       1  3.654   3.654  21.1425 0.0007673 ***
-    ## dim4       1  0.314   0.314   1.8195 0.2044858    
-    ## dim5       1  5.482   5.482  31.7152 0.0001529 ***
-    ## dim6       1  3.055   3.055  17.6727 0.0014759 ** 
-    ## dim7       1  8.895   8.895  51.4623 1.813e-05 ***
-    ## dim8       1  1.550   1.550   8.9678 0.0121965 *  
-    ## Residuals 11  1.901   0.173                       
+    ##           Df Sum Sq Mean Sq    F value    Pr(>F)    
+    ## dim1       1 95.538  95.538 4.4283e+29 < 2.2e-16 ***
+    ## dim2       1  4.243   4.243 1.9667e+28 < 2.2e-16 ***
+    ## dim3       1  2.406   2.406 1.1154e+28 < 2.2e-16 ***
+    ## dim4       1  0.037   0.037 1.6982e+26 < 2.2e-16 ***
+    ## dim5       1  5.457   5.457 2.5296e+28 < 2.2e-16 ***
+    ## dim6       1  3.862   3.862 1.7902e+28 < 2.2e-16 ***
+    ## dim7       1  5.192   5.192 2.4066e+28 < 2.2e-16 ***
+    ## dim8       1  0.637   0.637 2.9540e+27 < 2.2e-16 ***
+    ## Residuals 11  0.000   0.000                         
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -427,71 +420,31 @@ stepwise(lm1,direction='backward/forward',criterion='AIC')
     ## Direction:  backward/forward
     ## Criterion:  AIC 
     ## 
-    ## Start:  AIC=-29.06
+    ## Start:  AIC=-1268.03
     ## indice_total ~ dim1 + dim2 + dim3 + dim4 + dim5 + dim6 + dim7 + 
     ##     dim8
     ## 
-    ##        Df Sum of Sq     RSS      AIC
-    ## - dim1  1    0.0302  1.9315 -30.7485
-    ## - dim3  1    0.1944  2.0956 -29.1174
-    ## <none>               1.9013 -29.0642
-    ## - dim2  1    0.2624  2.1637 -28.4782
-    ## - dim6  1    0.2989  2.2002 -28.1440
-    ## - dim4  1    1.1390  3.0403 -21.6756
-    ## - dim8  1    1.5500  3.4513 -19.1398
-    ## - dim5  1    2.5804  4.4817 -13.9146
-    ## - dim7  1    8.7753 10.6765   3.4463
-    ## 
-    ## Step:  AIC=-30.75
-    ## indice_total ~ dim2 + dim3 + dim4 + dim5 + dim6 + dim7 + dim8
-    ## 
-    ##        Df Sum of Sq     RSS      AIC
-    ## - dim3  1    0.1754  2.1069 -31.0105
-    ## <none>               1.9315 -30.7485
-    ## - dim6  1    0.3640  2.2955 -29.2952
-    ## + dim1  1    0.0302  1.9013 -29.0642
-    ## - dim2  1    0.9457  2.8772 -24.7784
-    ## - dim4  1    1.1447  3.0762 -23.4408
-    ## - dim5  1    2.7798  4.7113 -14.9152
-    ## - dim8  1    3.3156  5.2471 -12.7610
-    ## - dim7  1    8.9255 10.8570   1.7815
-    ## 
-    ## Step:  AIC=-31.01
-    ## indice_total ~ dim2 + dim4 + dim5 + dim6 + dim7 + dim8
-    ## 
-    ##        Df Sum of Sq     RSS      AIC
-    ## - dim6  1    0.1897  2.2966 -31.2863
-    ## <none>               2.1069 -31.0105
-    ## + dim3  1    0.1754  1.9315 -30.7485
-    ## + dim1  1    0.0112  2.0956 -29.1174
-    ## - dim2  1    0.9865  3.0934 -25.3293
-    ## - dim4  1    1.9146  4.0215 -20.0817
-    ## - dim5  1    5.0241  7.1310  -8.6257
-    ## - dim8  1    6.1838  8.2907  -5.6120
-    ## - dim7  1   10.0056 12.1125   1.9700
-    ## 
-    ## Step:  AIC=-31.29
-    ## indice_total ~ dim2 + dim4 + dim5 + dim7 + dim8
-    ## 
-    ##        Df Sum of Sq     RSS      AIC
-    ## <none>               2.2966 -31.2863
-    ## + dim6  1    0.1897  2.1069 -31.0105
-    ## + dim1  1    0.0752  2.2213 -29.9526
-    ## + dim3  1    0.0010  2.2955 -29.2952
-    ## - dim2  1    0.8102  3.1067 -27.2433
-    ## - dim4  1    1.9909  4.2875 -20.8008
-    ## - dim5  1    6.2275  8.5241  -7.0567
-    ## - dim7  1    9.8556 12.1521   0.0355
-    ## - dim8  1   18.3288 20.6254  10.6158
+    ##        Df Sum of Sq    RSS      AIC
+    ## <none>              0.0000 -1268.03
+    ## - dim3  1    0.2573 0.2573   -71.06
+    ## - dim2  1    0.2777 0.2777   -69.54
+    ## - dim1  1    0.3224 0.3224   -66.55
+    ## - dim8  1    0.6373 0.6373   -52.92
+    ## - dim6  1    1.0836 1.0836   -42.31
+    ## - dim5  1    1.5740 1.5740   -34.84
+    ## - dim4  1    1.6391 1.6391   -34.03
+    ## - dim7  1    5.1334 5.1334   -11.20
 
     ## 
     ## Call:
-    ## lm(formula = indice_total ~ dim2 + dim4 + dim5 + dim7 + dim8, 
-    ##     data = IMCV)
+    ## lm(formula = indice_total ~ dim1 + dim2 + dim3 + dim4 + dim5 + 
+    ##     dim6 + dim7 + dim8, data = IMCV)
     ## 
     ## Coefficients:
-    ## (Intercept)         dim2         dim4         dim5         dim7         dim8  
-    ##     12.6559       0.1331       0.1242       0.1844       0.1649       0.2723
+    ## (Intercept)         dim1         dim2         dim3         dim4         dim5  
+    ##  -1.879e-13    1.250e-01    1.250e-01    1.250e-01    1.250e-01    1.250e-01  
+    ##        dim6         dim7         dim8  
+    ##   1.250e-01    1.250e-01    1.250e-01
 
 Destacar que la realidad es que:
 

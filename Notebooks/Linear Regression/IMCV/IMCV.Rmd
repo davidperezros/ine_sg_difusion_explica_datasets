@@ -1,14 +1,14 @@
 ---
-title: "Regresión Lineal: IMCV"
+title: "Regresión Lineal: IMCV_reg"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "noviembre 2023"
 output: 
-  rmdformats::readthedown:
-      code_folding: hide
-      cards : TRUE
   md_document:
     variant: markdown_github
+  rmdformats::readthedown:
+      code_folding: show
+      cards : TRUE
 editor_options:
   markdown:
     wrap: 72
@@ -94,7 +94,7 @@ Ahora leemos los datos del excel correspondientes a la pestaña *"Datos"* y vemo
 
 
 ```{r datos}
-IMCV <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/Datasets/Datos/David/Nuevos/IMCV_nuevo.xlsx",sheet = "Datos")
+IMCV <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/IMCV_reg.xlsx",sheet = "Datos")
 ```
 
 
@@ -334,11 +334,11 @@ grid.arrange(histogramtot,boxplottot,widths=c(0.3,0.2),nrow=1)
 ## Hipótesis y indicadores de bondad
 
 Para que una regresión lineal proporcione un buen ajsute a los datos debe cumplir una serie de requisitos que por tanto deben ser verificados al llevar a cabo el estudio. Recordar que la regresión lineal se expresa como:
-$$
+\[
 \mathbf{Y}=\mathbf{X} \boldsymbol{\beta}+\boldsymbol{\varepsilon}
-$$
+\]
 donde $\mathbf{Y}$ es la variable respuesta, $\mathbf{X}$ los predictores, $\boldsymbol{\beta}$ los coeficientes de la regresión y $\boldsymbol{\varepsilon}$ el error.
-$$
+\[
 \mathbf{Y}=\left[\begin{array}{c}
 y_1 \\
 y_2 \\
@@ -360,7 +360,7 @@ y_n
 \vdots \\
 \varepsilon_n
 \end{array}\right]
-$$
+\]
 Las hipótesis que se deben cumplir son:
 
   - **Linealidad**: La media de la respuesta es función lineal de los predictores. En términos matemáticos:
@@ -370,7 +370,7 @@ Las hipótesis que se deben cumplir son:
 
 - **Homocedasticidad**: Cuando la varianza del error es constante, condicionada a los predictores.
 
-$$\operatorname{Var}\left[\varepsilon_i \mid \mathbf{X}_1=x_1, \ldots, \mathbf{X}_k=x_k\right]=\sigma^2$$
+\[\operatorname{Var}\left[\varepsilon_i \mid \mathbf{X}_1=x_1, \ldots, \mathbf{X}_k=x_k\right]=\sigma^2\]
 
 - **Normalidad** : Los errores deben estar distribuidos normalmente, es decir, $\varepsilon_i \sim N(0,\sigma^2)\; \forall i$.
 
