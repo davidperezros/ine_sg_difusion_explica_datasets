@@ -31,7 +31,19 @@ El repositorio está distribuido en diferentes carpetas con el fin de organizar 
 | ECV_cluster         | Cluster             | Jerárquico          |
 | ECV_cluster         | Cluster             | K-Means             |
 | MercadoHipotecas    | Red. Dimension      | PCA                 |
-| IMCV_pca            | Red. Dimension      | PCA.                |
+| IMCV_pca            | Red. Dimension      | PCA                 |
+| Situacion_sanitaria | Red. Dimension      | PCA                 |
+| provincias_variado  | Red. Dimension      | PCA   ******        |
+| ******************  | Red. Dimension      | An. factorial       |
+| ******************  |clasifiacion         | lda                 |
+| ******************  |clasifiacion         | qda.                |
+
+
+
+
+   ******: Meaning pendiente
+
+
 
 
 
@@ -44,9 +56,9 @@ El repositorio está distribuido en diferentes carpetas con el fin de organizar 
 
     title        = {Dataset project},
     author       = {S.G. Difusión. INE},
-    year         = {2023},
+    year         = {2023/24},
     note         = {Version 0.0.9. },
-    url          = {})
+    url          = {https://github.com/davidperezros/ine_sg_difusion_explica_datasets})
 
 }
 ```
