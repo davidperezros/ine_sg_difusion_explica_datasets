@@ -38,9 +38,9 @@ library(readxl) # Para leer los excels
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
 library(factoextra) # fviz_cluster function
-library(skimr)  # Para funcion skim
-library(ggcorrplot) #Para funcion ggcorrplot
-library(corrplot) #Para corrplot
+library(skimr) # Para funcion skim
+library(ggcorrplot) # Para funcion ggcorrplot
+library(corrplot) # Para corrplot
 ```
 
 Cargamos entonces el conjunto de datos:
@@ -146,7 +146,10 @@ Data summary
 
 Vemos que estas variables (a excepción de las CCAA) son todas de tipo
 numérico, y además, podemos obtener información como la media,
-desviación típica, los cuartiles y el histograma de cada una.
+desviación típica, los cuartiles y el histograma de cada una. **Si no
+hubiesemos estandarizado las variables**, las variables *Médicos* y
+*Enfermeros* dominarían las componentes principales puesto que toman
+unos valores muy grandes en valor absoluto.
 
 **Correlación:** El que existan correlaciones muy elevadas en el
 conjunto de datos nos permitirá resumir la información en un menor
@@ -154,7 +157,7 @@ número de componentes principales, pues éstas explicarán una mayor
 cantidad de información.
 
 ``` r
-ggcorrplot(cor(datos[,2:8]), type = "lower", lab = T, show.legend = T)
+ggcorrplot(cor(datos[, 2:8]), type = "lower", lab = T, show.legend = T)
 ```
 
 <img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
@@ -249,16 +252,16 @@ nombre de filas y posteriormente eliminaremos esa variable ya que ya la
 tendremos como nombre de filas.
 
 ``` r
-CCAA<-datos$CCAA
-datos<-datos[,-1]         # Eliminamos ahora 
-rownames(datos)<-CCAA # Como nombres de filas las CCAA
+CCAA <- datos$CCAA
+datos <- datos[, -1] # Eliminamos ahora
+rownames(datos) <- CCAA # Como nombres de filas las CCAA
 ```
 
 Escalamos los datos y calculamos la matriz de varianzas covarianzas,
 mostramos solo la diagonal (debería ser 1).
 
 ``` r
-datos2<-scale(datos)
+datos2 <- scale(datos)
 summary(datos2)
 ```
 
@@ -292,11 +295,11 @@ datos en un paso previo. Por defecto en la función viene el valor de
 `SCALE=FALSE` y `CENTER=TRUE`.
 
 ``` r
-pca <- prcomp(datos2,center= TRUE,scale = TRUE)  # Scale=T 
+pca <- prcomp(datos2, center = TRUE, scale = TRUE) # Scale=T
 ```
 
 **Calculamos los coeficientes de la ecuación para cada componente
-principal**
+principal** (Autovectores)
 
 ``` r
 pca$rotation
@@ -341,7 +344,7 @@ construidos (componentes principales). Esto corresponde a un cambio de
 coordenadas bajo el paradigma del Álgebra Lineal.
 
 ``` r
- pca$x
+pca$x
 ```
 
     ##                                     PC1         PC2         PC3         PC4
@@ -381,6 +384,11 @@ coordenadas bajo el paradigma del Álgebra Lineal.
     ## País Vasco                   0.184217821  0.035413303 -0.06901077
     ## Rioja, La                   -0.381520967  0.025708347 -0.12802897
 
+Por ejemplo, en un gráfico bidimensional con los dos primeros ejes,
+Andalucía toma la posición (-2.29,-1.17), o por otro lado, el País Vasco
+se encuentra en (1.12, 1.06). Dando una interpretación a cada eje,
+podremos determinar qué perfil tiene cada CC.AA. dentro del estudio.
+
 **Varianza explicada por cada componente principal**
 
 Una vez calculadas las componentes principales, es de interés conocer la
@@ -419,6 +427,18 @@ summary(pca)
     de la variación, y que necesitamos 3 componentes para alcanzar el
     80%.
 
+Si elevamos al cuadrado estas desviaciones, tenemos la varianza (el
+**autovalor correspondiente**). Es decir, la varianza explicada por cada
+componente corresponde con los autovalores de la matriz de covarianzas
+de los datos estandarizados.
+
+``` r
+# Autovalues
+pca$sdev^2 # varianza de cada componente
+```
+
+    ## [1] 3.54217490 1.51832920 0.92527315 0.60150104 0.22922822 0.16816380 0.01532969
+
 ## Selección de componentes
 
 Graficando el valor de la varianza de cada componente principal, podemos
@@ -427,25 +447,28 @@ componentes son las que más varianza explican y que a medida que se
 añaden más, la varianza explicada por cada una es menor.
 
 ``` r
-fviz_eig(pca, main="Varianza de cada componente", choice = "eigenvalue", addlabels = T)
+fviz_eig(pca, main = "Varianza de cada componente", choice = "eigenvalue", addlabels = T)
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
+
 o como el porcentaje de varianza explicada por cada componente sobre el
 total.
 
 ``` r
-fviz_screeplot(pca, addlabels = TRUE, main="Porcentaje de varianza explicada por cada componente (%)")
-```
-
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-11-1.png" style="display: block; margin: auto;" />
-A continuación, representamos las varianzas acumuladas:
-
-``` r
-plot(summary(pca)$importance[3, ], type="o", col="darkblue", lwd=3, main = "Porcentaje de varianza acumulada", xlab = "Componente Principal", ylab = "Porcentaje de varianza acumulada")
+fviz_screeplot(pca, addlabels = TRUE, main = "Porcentaje de varianza explicada por cada componente (%)")
 ```
 
 <img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-12-1.png" style="display: block; margin: auto;" />
+
+A continuación, representamos las varianzas acumuladas:
+
+``` r
+plot(summary(pca)$importance[3, ], type = "o", col = "darkblue", lwd = 3, main = "Porcentaje de varianza acumulada", xlab = "Componente Principal", ylab = "Porcentaje de varianza acumulada")
+```
+
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+
 Determinar el número de componentes que elegir para continuar con el
 análisis no tiene unas normas determinadas a seguir. Respecto a ello,
 existen varios criterios con sus respectivas propuestas.
@@ -483,7 +506,7 @@ cuáles son los valores más altos (en valor absoluto), para así poder dar
 una interpretación a cada eje.
 
 ``` r
-pca$rotation[,1:4]
+pca$rotation[, 1:4]
 ```
 
     ##                    PC1        PC2          PC3         PC4
@@ -501,7 +524,8 @@ colnames(corr_var) <- c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7")
 corrplot(corr_var)
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+
 Si nos fijamos en los pesos más altos, podemos darle una interpretación
 a cada eje. Por ejemplo:
 
@@ -509,26 +533,25 @@ a cada eje. Por ejemplo:
     valores absolutos bastante similares y elevados, que son los
     correspondientes con las variables Ind_envej, T_mort, T_nat y
     Tasa_enf. Por lo tanto, parece que la primera componente recoge
-    información demográfica. Teniendo en cuenta los signos podemos
+    **información demográfica**. Teniendo en cuenta los signos podemos
     concluir que las CC.AA. que se sitúen a la derecha del eje serán
     aquellas con mayor Tasa de mortalidad, mayor Índice de
     envejecimiento, mayor Tasa de incidencia de enfermedades en la
     población, y en contraposición, menor Tasa de natalidad.
 
--   En la **segunda componente** explica un 21% de variación adicional.
-    Los pesos más elevados corresponden con las variables Médicos y
-    Enfermeros, representando de alguna forma, los recursos sanitarios
-    de las CCAA. Ambas variables contribuyen de forma positiva al eje,
-    por lo que cuanto más a la derecha del eje se sitúe una CC.AA.,
-    mayores recursos de personal sanitario posee.
+-   En la **segunda componente**, los pesos más elevados corresponden
+    con las variables Médicos y Enfermeros, representando de alguna
+    forma, los **recursos sanitarios** de las CCAA. Ambas variables
+    contribuyen de forma positiva al eje, por lo que cuanto más a la
+    derecha del eje se sitúe una CC.AA., mayores recursos de personal
+    sanitario posee.
 
--   Para la **tercera componente** explica un 13% de variación adicional
-    sobre las anteriores componentes. El peso más elevado y con gran
-    diferencia sobre el resto, corresponde a la variable medidora de la
-    inaccesibilidad de la población a los medicamentos recetados. La
-    variable puntúa negativamente en el eje, de forma que las
-    Comunidades con mayor valor en esta componente, son aquellas con
-    menor inaccesibilidad a los medicamentos.
+-   Para la **tercera componente**, el peso más elevado, corresponde a
+    la variable medidora de la **inaccesibilidad de la población a los
+    medicamentos recetados** . La variable puntúa negativamente en el
+    eje, de forma que las Comunidades con mayor valor en esta
+    componente, son aquellas con menor inaccesibilidad a los
+    medicamentos.
 
 -   En la **cuarta componente**
 
@@ -563,16 +586,29 @@ por lo que las variables que estén muy cerca del centro de la gráfica
 son las menos importantes para las dos primeras componentes.
 
 ``` r
-fviz_pca_var(pca,axes=c(1,2), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+fviz_pca_var(pca, axes = c(1, 2), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-14-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
 
 ``` r
-fviz_pca_var(pca,axes=c(1,3), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+fviz_pca_var(pca, axes = c(1, 3), col.var = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-14-2.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-15-2.png" style="display: block; margin: auto;" />
+
+-   Si nos fijamos en el eje de abscisas, vemos como T_mort, Ind_envej,
+    Tasa_enf y T_nat son las variables con menor ángulo respecto a él,
+    indicando que han contribuído a la formación de la PC1. Las tres
+    primeras variables se sitúan a la derecha del eje (contribución
+    positiva), mientras que T_nat lo hace a la izquierda (contribución
+    negativa). Es llamativo el pequeño ángulo formado por T_mort e
+    Ind_envej, y es debido a la alta correlación entre ambas, que
+    recordamos que era del 92%).
+
+-   En cuanto al eje de ordenadas, vemos que las variables que forman un
+    menor ángulo respecto a él, son Médicos y Enfermeros, siendo las que
+    más contribuían a la formación de la PC2, ambas de forma positiva.
 
 **RESUMEN DE RESULTADOS**
 
@@ -599,7 +635,8 @@ colnames(corr_var) <- c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7")
 corrplot(corr_var)
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-15-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+
 En cuanto a este gráfico, es llamativo como las dos o tres primeras
 componentes son las más importantes en el PCA, sobre todo, la PC1.
 
@@ -616,41 +653,108 @@ puntuaciones parecidas. Las comunidades con valores cercanos a la media
 se situarán cerca del centro del gráfico (0,0).
 
 Representando los individuos sobre PC1 y PC2, vemos que Comunidades como
-Aragón y País Vasco, o Canarias y Baleares están muy próximas entre sí,
-indicando que tienen una situación sanitaria muy parecida
+Canarias y Baleares, o Aragón y el País Vasco están muy próximas entre
+sí, indicando que tienden a tener un nivel sanitario similar.
 
 ``` r
 # Sobre PC1 y PC2
 fviz_pca_ind(pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE, axes = c(1, 2))
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-16-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
 
 ``` r
 fviz_pca_ind(pca, col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE, axes = c(1, 3))
 ```
 
-<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+
+Del mismo modo, podemos representar las Comunidades sobre PC1 y PC3.
+
+En este caso, las CC.AA. con menor porcentaje de población con
+inaccesibilidad a los medicamentos son Cantabria, Madrid y Castilla-La
+Macha, mientras que las Comunidades en las que un mayor porcentaje de
+población sufre estos problemas son Galicia, la Comunidad Valenciana o
+Murcia.
+
+**Biplot**
+
 Para poder extraer fácilmente los perfiles, podemos combinar las
 variables e individuos en un solo gráfico que nos permita identificar
 qué Comunidades se encuentran en una situación parecida y además, que
 nos permita identificar sus características.
-
-**Biplot**
 
 El biplot permite la representación conjunta de los individuos y las
 variables sobre los nuevos ejes. Para que el resultado sea fácilmente
 interpretable, debemos tener pocas variables e individuos en el conjunto
 de datos.
 
+``` r
+fviz_pca_biplot(pca, repel = TRUE, col.var = "deeppink", col.ind = "#696969")
+```
+
+<img src="Situacion_sanitaria_files/figure-markdown_github/unnamed-chunk-19-1.png" style="display: block; margin: auto;" />
+Los ejes inferior e izquierdo representan las puntuaciones o scores de
+cada observación sobre las componentes principales. Por ejemplo, las
+coordenadas de Andalucía son (-2.29, -1.17) o las de Madrid, (-0.61,
+1.7).
+
+Sobre ellos, se han superpuesto a escala, las variables tenidas en
+cuenta en el análisis.
+
+**Perfiles**
+
+-   Respecto a los extremos del eje PC1, observamos dos grupos
+    diferenciados. Por una parte, (Murcia, Canarias Baleares y
+    Andalucía) son las CC.AA. con mayor tasa de natalidad; mientras que
+    (Asturias, Galicia, Castilla y León) son las que tienen una
+    población más envejecida y con mayor tasa de morbilidad por
+    enfermedades.
+
+-   Respecto al eje PC2, se tiene que Navarra es la Comunidad con mayor
+    personal sanitario, seguida por Madrid. Entre las Comunidades con
+    menores recursos sanitarios se encuentran Castilla-La Mancha,
+    Galicia y Andalucía.
+
+También se puede destacar que La Rioja se encuentra justo en el origen
+de coordenadas (0,0), pudiendo considerarse representante de la media
+española en cuanto a las características demográficas y sanitarias.
+
 # Conclusiones
 
-En resumen, las nuevas componentes han permitido identificar patrones y
-características de las comunidades autónomas en términos de la situación
-sanitaria. Este análisis proporciona información valiosa para comprender
-mejor las diferencias y similitudes entre las comunidades autónomas y
-puede ser útil para tomar decisiones en términos de políticas públicas y
-estrategias sanitarias.
+El objetivo de este estudio era, partiendo de un conjunto de datos
+demográfico-sanitarios sobre la población española, extraer en qué
+situación se encuentra cada Comunidad y así identificar cuáles son las
+Comunidades con un perfil más parecido entre sí.
+
+Tras haber aplicado la técnica de PCA, hemos concluido que:
+
+-   Las CC.AA. del noroeste de España como Galicia, Asturias, Castilla y
+    León y Cantabria se caracterizan por tener su población envejecida y
+    con mayor tasa de incidencia de enfermedades. Además, coincide con
+    tener una baja tasa de personal sanitario.
+
+-   En contraposición, Aragón o el País Vasco tienen también una
+    población envejecida pero cuentan con una mayor tasa de personal
+    sanitario por habitante.
+
+-   Murcia, Andalucía, Baleares y Canarias se caracterizan por ser las
+    Comunidades con mayor tasa de natalidad de España.
+
+-   La situación demográfica de Madrid y Cataluña es mejor que la media
+    española, mayor tasa de natalidad, menor mortalidad, además de que
+    cuentan con una mayor tasa de personal sanitario.
+
+-   En los extremos, Castilla La-Mancha es la Comunidad con menor
+    personal sanitario entre su población, mientras que Navarra es la
+    que concentra un mayor número de médicos y enfermeros entre ella.
+
+-   La situación de la Rioja puede considerarse como la representantiva
+    de la media española. También la Comunidad Valenciana y Extremadura
+    se encuentran cercana a ella, aunque con una tasa algo menor de
+    personal sanitario. Y mientras que la primera cuenta con una
+    población más joven, Extremadura tiene algo más de envejecimiento en
+    su población.
 
 [1] EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
 relativos en los que se exploran las variables para tener una idea de
