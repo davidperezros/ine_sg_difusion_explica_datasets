@@ -33,7 +33,7 @@ El repositorio está distribuido en diferentes carpetas con el fin de organizar 
 | MercadoHipotecas    | Red. Dimension      | PCA                 |
 | IMCV_pca            | Red. Dimension      | PCA                 |
 | Situacion_sanitaria | Red. Dimension      | PCA                 |
-| provincias_variado  | Red. Dimension      | PCA   ******        |
+| provincias_variado  | Red. Dimension      | PCA                 |
 | ******************  | Red. Dimension      | An. factorial       |
 | ******************  |clasifiacion         | lda                 |
 | ******************  |clasifiacion         | qda.                |
