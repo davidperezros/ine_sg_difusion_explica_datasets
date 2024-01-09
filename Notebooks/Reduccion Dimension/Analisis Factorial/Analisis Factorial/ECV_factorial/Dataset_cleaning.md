@@ -1,8 +1,6 @@
 En este cuaderno vamos a procesar un conjunto de datos para
 posteriormente realizar un Análisis Factorial a partir de los microdatos
-de la Encuesta de Condiciones de Vida (ECV) del año 2013. Dicho análisis
-nos sirve como excusa para tratar de mostrar en qué consiste una
-regresión logística y cómo llevarla a cabo en R.
+de la Encuesta de Condiciones de Vida (ECV) del año 2013.
 
 Para ello, usaremos datos **transversales** de la ECV del año 2013. Los
 microdatos de la ECV 2013 pueden descargarse en el siguiente link:
