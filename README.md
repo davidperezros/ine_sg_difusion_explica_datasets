@@ -53,8 +53,13 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 
 
 
+# Aviso Legal
 
+Los derechos de propiedad intelectual de este repositorio, sus archivos y los códigos que el mismo contiene son de titularidad del INE, a no ser que de forma específica se indique otra cosa diferente. Todos los signos y marcas distintivas están protegidos por la Ley y su uso no autorizado puede dar lugar al ejercicio de las acciones legales que procedan.
 
+Esta licencia de uso se rige por las leyes españolas independientemente del entorno legal del usuario. Cualquier disputa que pueda surgir en la interpretación de este acuerdo se resolverá en los tribunales españoles.
+
+Cualquier duda o comentario sobre el contenido de este servidor debe dirigirse a la Subdirección General de Difusión y Comunicación del INE.
 
 
 # Créditos
