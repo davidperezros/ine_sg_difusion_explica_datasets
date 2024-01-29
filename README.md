@@ -42,8 +42,8 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 | provincias_variado  | Red. Dimension      | PCA                 |
 | ECV_factorial       | Red. Dimension      | Análisis Factorial  |
 | pisa_factorial      | Red. Dimension      | Análisis Factorial  |
-| ******************  |clasifiacion         | lda                 |
-| ******************  |clasifiacion         | qda.                |
+| laboral             |Clasifiación         | Análisis Discriminante |
+| salud               |Clasifiación         | Análisis Discriminante |
 
 
 
