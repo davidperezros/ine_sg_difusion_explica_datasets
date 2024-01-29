@@ -172,10 +172,11 @@ cualquiera de las demas, ya que se ven los colores de ambas clases
 separados en la última columna.
 
 ``` r
+datos$Estudios <- as.factor(datos$Estudios)
 Label <- datos$Estudios
-colors.diabetes <- c("pink", "#1874CD")[Label]
+colo <- c("pink", "#1874CD")[Label]
 X <- datos[, c(2:5)]
-pairs(X, main = "Diabetes data set", pch = 20, col = colors.diabetes, lower.panel = NULL, cex = 0.2, oma = c(1, 3, 3, 15))
+pairs(X, main = "Diabetes data set", pch = 20, col = colo, lower.panel = NULL, cex = 0.2, oma = c(1, 3, 3, 15))
 ```
 
 <img src="laboral_files/figure-markdown_github/unnamed-chunk-5-1.png" style="display: block; margin: auto;" />
