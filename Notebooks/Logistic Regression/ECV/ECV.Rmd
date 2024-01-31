@@ -4,11 +4,11 @@ subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "noviembre 2023"
 output: 
-  md_document:
-    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
+  md_document:
+    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -279,7 +279,7 @@ Vemos que al *lmod1* si le añadimos la variable *Estado_civil*, la residual var
 
 Para este modelo vamos a calcular la matriz de confusión y el área ROC.
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 # confusion matrices
 predicted2 <- predict(lmod2, data.frame(Ano_Nacimiento = datos1$Ano_Nacimiento, Estado_civil = datos1$Estado_civil, Nivel_Estudios = datos1$Nivel_Estudios), type = "response")
 library(caret)

@@ -358,6 +358,34 @@ library(caret)
 confusionMatrix(data = as.factor(ifelse(predicted3 > 0.227, 1, 0)), reference = datos1$cesarea, positive="1")
 ```
 
+    ## Confusion Matrix and Statistics
+    ## 
+    ##           Reference
+    ## Prediction    0    1
+    ##          0 2069  191
+    ##          1  305  244
+    ##                                           
+    ##                Accuracy : 0.8234          
+    ##                  95% CI : (0.8088, 0.8374)
+    ##     No Information Rate : 0.8451          
+    ##     P-Value [Acc > NIR] : 0.9992          
+    ##                                           
+    ##                   Kappa : 0.3906          
+    ##                                           
+    ##  Mcnemar's Test P-Value : 3.898e-07       
+    ##                                           
+    ##             Sensitivity : 0.56092         
+    ##             Specificity : 0.87152         
+    ##          Pos Pred Value : 0.44444         
+    ##          Neg Pred Value : 0.91549         
+    ##              Prevalence : 0.15486         
+    ##          Detection Rate : 0.08686         
+    ##    Detection Prevalence : 0.19544         
+    ##       Balanced Accuracy : 0.71622         
+    ##                                           
+    ##        'Positive' Class : 1               
+    ## 
+
 ``` r
 library(Epi)
 # The ROC function

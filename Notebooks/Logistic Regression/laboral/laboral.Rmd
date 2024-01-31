@@ -2,13 +2,13 @@
 title: "Regresión Logística: ECV_microdatos"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
-date: "diciembre 2023"
+date: "noviembre 2023"
 output: 
+  md_document:
+    variant: markdown_github
   rmdformats::readthedown:
       code_folding: show
       cards : TRUE
-  md_document:
-    variant: markdown_github
 editor_options:
   markdown:
     wrap: 72
@@ -28,46 +28,137 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", warning = FALSE, messag
 
 
 
-
-
 # Introducción
 
 ## dataset
 
-En este cuaderno vamos a analizar  la presencia de una cesárea en un parto a partir de los microdatos de la **Estadística de nacimientos. Movimiento natural de la población.** Concretamente, se han tomado los datos relativos a **partos, 2022** y los relativos a la Comunidad Autónoma de **Navarra**.. Dicho análisis nos sirve como
-excusa para tratar de mostrar en qué consiste una regresión logística y
-cómo llevarla a cabo en R.
+
+En este cuaderno vamos a analizar el dataset llamado
+[*laboral.xlsx*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/42eef8692d340449b7cb7555b35f38ada190138a/Datasets/laboral.xlsx).
+Este contiene microdatos relativos a la **Encuestas de estructura salarial. Resultados**. Concretamente, datos correspondientes al año 2018. Las variables de interés son las siguientes:
+
+  - **Estudios**: Nivel de estudios del encuestado. Valor 1 corresponde a individuos con muy bajo nivel académico (hasta primaria), y 0 a individuos con al menos nivel académico universitario.
+  - **Salario**: Sueldo bruto anual.
+  - **Edad**: Grupo de Edad del encuestado. Puesto que las clases tienen un orden intrínseco, la variable la vamos a tratar como cuantitativa.
+  
+    - 01	MENOS 19 AÑOS 
+    - 02	DE 20 A 29    
+    - 03	DE 30 A 39    
+    - 04	DE 40 A 49    
+    - 05	DE 50 A 59    
+    - 06	MÁS DE 59     
+
+  - **Antiguedad**: Años de antigüedad.
+  - **Vacaciones**: Días de vacaciones al año.
+
+El objetivo de este estudio será aplicar un Análisis **Discriminante** para
+clasificar a la población entre alto y bajo nivel de estudios a partir de estas variables. Además se verá si el salario en si mismo constituye un buen factor de discriminación.
 
 
-Ver fichero
-[*Dataset_cleaning.rmd*](https://github.com/davidperezros/ine_sg_difusion_explica_datasets/blob/546d12c723434e97ea605ed45e153680f7be834a/Notebooks/Logistic%20Regression/Partos/Dataset_cleaning.md)
-para ver cómo se han tratado dichos microdatos hasta obtener un conjunto
-de datos adecuado para la regresión logística, y que tomaremos aquí como
-punto de partida.
-
-```{r librerias}
+```{r librerias, message=FALSE, warning= FALSE}
 # Librerias
 library(readxl) # Para leer los excels
+library(dplyr) # Para tratamiento de dataframes
+library(ggplot2) # Nice plots
+library(caret) # For data paratition
+library(MASS) # funciones lda() y qda()
+library(klaR) # partimat
 ```
 
 Cargamos entonces el conjunto de datos:
 
 ```{r cargar_datos}
-datos1 <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/Partos.xlsx", sheet = "Datos")
+datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/laboral.xlsx", sheet = "Datos")
+
+datos$Estudios <- as.factor(datos$Estudios)
+
 ```
 
-Concretamente tenemos las siguientes variables:
 
- - **bebes**: Número de bebés nacidos en el parto. (categórica)
-  - **semanas**: Número de semanas del embarazo.
-  - **edad_madre**:  Edad de la madre en años cumplidos.
-  - **cesarea**: Si se ha llevado a cabo una césarea en el parto (Categórica. 0=no, 1=si).
-  - **parto_normal**: Si el parto transcurrió con normalidad. (Categórica. 1=normal, 2=complicaciones)
+
+```{r librerias, message=FALSE, warning= FALSE}
+# Librerias
+library(readxl) # Para leer los excels
+library(dplyr) # Para tratamiento de dataframes
+library(ggplot2) # Nice plots
+library(caret) # For data paratition
+library(MASS) # funciones lda() y qda()
+library(klaR) # partimat
+```
+
+
+
+
+## Descripción del trabajo a realizar
+
+**(Esto irá en la web de explica)** Se pretende hacer un Análisis
+de Discriminante empleando los procedimientos de LDA (Análsis de Discriminante Lineal) y  QDA (Análisis de Discriminante Cuadrático).
+
+  -   Hacer un análisis exploratorio. Ver si las variables separan bien las clases.
+  - Convertir a factor la variable respuesta.
+  - Realizar una partición de datos Train/Test.
+  -   Fijar semilla cuando se usen números aleatorios (para la reproductividad).
+  - Ejecutar algoritmos lda/qda y evaluar su bondad.
+
+
+
+# Análisis de Discrminante: LDA y QDA 
+
+## Introducción
+El análisis discriminante es una técnica estadística utilizada para clasificar observaciones en grupos o categorías predefinidas en función de un conjunto de variables predictoras.
+
+El objetivo principal es identificar las características o variables que mejor distinguen entre diferentes grupos conocidos. Es una técnica de **aprendizaje supervisado**, lo que significa que requiere un conjunto de datos etiquetado con información sobre las categorías o grupos a los que pertenecen las observaciones.
+
+
+
+El análisis discriminante se puede dividir en dos tipos principales:
+
+  - **Análisis Discriminante Lineal (LDA)**: LDA asume que las variables predictoras tienen una distribución normal y que las matrices de covarianza de las variables predictoras son iguales para todos los grupos. LDA busca un hiperplano (o límite de decisión) que maximice la distancia entre las medias de los grupos y minimice la varianza dentro de cada grupo.
+  Debido a la asunción de igual covarianzas, los **hiperplanos que separan las clases son lineales**.
+
+  - **Análisis Discriminante Cuadrático (QDA)**: QDA relaja la suposición de igualdad de matrices de covarianza y permite que cada grupo tenga su propia matriz de covarianza. Esto hace que QDA sea más flexible pero también requiere más datos para estimar las matrices de covarianza para cada grupo. Los hiperplanos que separan las clases son **cuadráticos**.
+
+
+
+
+
+
+
+
+
+## Análisis Exploratorio (EDA[^1])
+
+[^1]: EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
+    relativos en los que se exploran las variables para tener una idea
+    de que forma toma el dataset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer una regresión
-logística que clasifique la variable respuesta *cesarea* - si en el parto se efectuo una césarea - en función de varios predictores, tanto continuos (*semanas, edad_madre*) como categóricos (*bebes*).
+logística que clasifique la variable respuesta *MSE* - Mejora de la Situación Ecnonómica del encuestado respecto a su adolescencia en casa- en función de varios predictores, tanto continuos (*Ano_Nacimiento*) como categóricos (*Estado_civil*, *Nivel_Estudios*).
 
   - Hacer un análisis exploratorio.
   - **IMPORTANTE**: Convertir a factor las variables que lo sean.
@@ -88,19 +179,6 @@ ejecutar el resto del código del trabajo:
 ```{r librerias2 }
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
-```
-
-```{r porcentaje,out.width="50%",echo=FALSE}
-# Creamos un gráfico de quesito o de sectores para ver qué proporción de personas ha mejorado su situación económica:
-
-datos_quesito <- c(nrow(filter(datos1, cesarea == 1)), nrow(filter(datos1, cesarea == 0)))
-etiquetas <- c("Nacidos por césarea", "Parto natural")
-
-porcentajes <- paste0(round(datos_quesito / sum(datos_quesito) * 100, 1), "%")
-colores <- c("lightgreen", "lightcoral")
-
-pie(datos_quesito, labels = porcentajes, col = colores, radius = 1.05, cex = 1)
-legend("topleft", etiquetas, cex = 0.7, fill = colores)
 ```
 
 # Clasificación: Regresión Logística
@@ -142,26 +220,25 @@ A continuación, para simplificar un poco las cosas, consideremos el
 modelo de regresión logística más sencillo: regresión logística binaria
 simple (una sola covariable):
 
-$$ 
-\begin{align}
+\[] \begin{align}
 P(Y=1)=\frac{1}{1+e^{-(\beta_0 + \beta_1X_1 + ϵ)}}
 \end{align}
-$$
-
-
-
-La interpretación de esta función es muy similar a la de una regresión
-lineal: el coeficiente $\beta_0$ representa la posición de la curva
-sobre el eje horizontal o de abscisas (más hacia la izquierda o más
-hacia la derecha); mientras que $\beta_1$ representa la pendiente de la
-curva, es decir, cuán inclinada está en su parte central (cuanto más
-inclinada, mayor capacidad de discriminar entre los dos valores de la
-variable dependiente).
+\]
 
 
 
 
 
+
+
+Esta imagen, sacada del libro *Análisis de datos en Ciencias Sociales y
+de la Salud III (Pardo et al., 2012)* muestra tres regresiones logísticas
+con el mismo coeficiente , pero distinto poder discriminante (diferente
+): la curva de la izquierda tendría un poder de discriminación perfecto,
+mientras que la de la derecha no discrimina nada (la del medio sería un
+caso intermedio entre los dos extremos). Por lo tanto, podemos decir que
+una covariable será mejor predictora cuanto mayor sea el coeficiente $\beta$ que
+genere. [Aclaración: en la imagen, $\pi_1 = P(Y=1)$]
 
 Si estuviésemos ante una regresión logística múltiple, cada variable
 independiente recibiría una ponderación proporcional a su capacidad para
@@ -230,43 +307,44 @@ Es una medida de bondad porque evalúa qué tan bien puede discriminar un modelo
 
 **IMPORTANTE**: Convertir a factor las variables que tengan que ser tratadas como tal, de lo contrario R las tratará como numéricas. Además, la variable respuesta debe tener los niveles codificados como $0$ y $1$ para poder usar la funcion `glm`.
 
-```{r factor}
-datos1$cesarea<-as.factor(datos1$cesarea)
-datos1$bebes<-as.factor(datos1$bebes)
-datos1$parto_normal<-as.factor(datos1$parto_normal)
-
-```
 
 
 A continuación presentamos tres posibles modelos y posteriormente elegiremos uno de ellos.
 
-  - **lmod1** : Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación.
-  - **lmod2** :  Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación, número de nacimientos en el parto.
-  - **lmod3** :  Queremos clasificar si hay césarea en el parto en función de edad_madre, semanas de gestación, número de nacimientos en el parto y si hubo complicaciones en el parto.
+  - **lmod1** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica).
+  - **lmod2** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica) y el Estado_civil (categórica).
+  - **lmod3** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica), el Estado_civil (categórica) y el Nivel de Estudios (categórica) y .
+
 
 ```{r modelos}
 # lmod1
-lmod1 <- glm(formula = cesarea ~ edad_madre+semanas, family = binomial(link = logit), data = datos1)
+lmod1 <- glm(formula = Estudios ~ Edad, family = binomial(link = logit), data = datos)
 summary(lmod1)
 
 # lmod2
-lmod2 <- glm(formula = cesarea ~ edad_madre+semanas+bebes,family = binomial(link = logit),data=datos1)
+lmod2 <- glm(formula = Estudios ~ Edad + Vacaciones, family = binomial(link = logit), data = datos)
 summary(lmod2)
 
 # lmod3
-lmod3 <- glm(formula = cesarea ~ edad_madre+semanas+bebes+parto_normal, family = binomial(link = logit), data = datos1)
+lmod3 <- glm(formula = Estudios ~ Edad + Vacaciones + Antiguedad, family = binomial(link = logit), data = datos)
+summary(lmod3)
+
+# lmod3
+lmod4 <- glm(formula = Estudios ~ Edad + Vacaciones + Antiguedad+ Salario, family = binomial(link = logit), data = datos)
 summary(lmod3)
 ```
-El tercer modelo tiene el valor más bajo de la **deviance residual**, lo que indica un mejor ajuste del modelo a los datos en comparación con los dos modelos anteriores. Esto sugiere que la inclusión de "parto_normal" mejora la capacidad del modelo para explicar la variabilidad observada en la variable de respuesta. Además, también es el modelo con el valor más bajo para **AIC** luego parece razonable quedarnos con el.
+
+En este caso, el Modelo 2 tiene el **AIC** más bajo, lo que sugiere que podría ser el mejor ajuste entre los tres modelos. Sin embargo, es importante considerar otros aspectos y realizar pruebas adicionales si es necesario para validar el modelo seleccionado. Por otro lado, en términos de la **Deviance** podemos ver cosas parecidas. 
+Vemos que al *lmod1* si le añadimos la variable *Estado_civil*, la residual variance disminuye lo que parece indicar que está variable es significante. Sin embargo, cuando le añadimos la variable *Nivel_Estudios*, la dismunición de la deviance es muy baja por lo que no parece que sea del todo relevante en función del resto de variables.  
 
 
-Para este modelo vamos a calcular la matriz de confusión y el área ROC. Como punto de corte para clasificar la osbervación como césarea o no, tomamos *p=0.227* (obtenido más abajo al ver la ROC). Es decir, si bajo el modelo una obsaervación presenta una predice una probabildiad de césarea mayor de *0.227*, entonces lo clasificaremos como tal. 
+Para este modelo vamos a calcular la matriz de confusión y el área ROC.
 
 ```{r, eval=TRUE}
 # confusion matrices
-predicted3 <- predict(lmod3, data.frame(edad_madre = datos1$edad_madre, semanas = datos1$semanas, bebes = datos1$bebes, parto_normal=datos1$parto_normal), type = "response")
+predicted2 <- predict(lmod4, data.frame(Edad = datos$Edad, Vacaciones = datos$Vacaciones, Antiguedad=datos$Antiguedad,Salario=datos$Salario), type = "response")
 library(caret)
-confusionMatrix(data = as.factor(ifelse(predicted3 > 0.227, 1, 0)), reference = datos1$cesarea, positive="1")
+confusionMatrix(data = as.factor(ifelse(predicted2 > 0.348, 1, 0)), reference = datos$Estudios)
 ```
 
 
@@ -274,11 +352,11 @@ confusionMatrix(data = as.factor(ifelse(predicted3 > 0.227, 1, 0)), reference = 
 library(Epi)
 # The ROC function
 
-# lmod3
-ROC(form = cesarea ~ +semanas+bebes+parto_normal, data = datos1, plot = "ROC", lwd = 3, cex = 1.5)
+# lmod2
+ROC(form =  Estudios ~ Edad + Vacaciones + Antiguedad+ Salario, data = datos, plot = "ROC", lwd = 3, cex = 1.5)
 
 ```
-Observamos una Especifidad del 62% y una Sensibilidad del 50%. Esto quiere decir que nuestro modelo es mejor evitando falsos positivos, que falsos negativos. Es decir, que es mejor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés. Lo cual es deseable. 
+Observamos una Especifidad del 50% y una Sensibilidad del 62%. Esto quiere decir que nuestro modelo es mejor evitando falsos negativos, que falsos positivos Es decir, que es peor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés.  
 
 
 Destacar que el elemtno **Ir.eta** que aparece arriba, es el punto de corte de la probabilidad. Es decir, si nuestra regresión logística predice que hay una probabilidad mayor de $0.179$ de que haya mejorado la calidad de vida, nosotros lo clasificamos como que efectivamente ha mejorado y si es menor, lo clasificamos como que no.
@@ -324,10 +402,42 @@ No obstante, esto es algo muy generalizado que puede que no sea así ya que la s
 
 
 
+## Odds Ratio
 
 
 
+
+```{r}
+library("MASS")
+lda.class.Iris <- lda(MSE ~ Ano_Nacimiento, datos1)
+library("klaR")
+partimat(MSE ~ Ano_Nacimiento + Factor_de_elevacion, datos1, method = "lda")
+
+datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
+  geom_density(
+    aes(
+      group = MSE,
+      colour = MSE,
+      fill = MSE
+    ),
+    alpha = 0.2
+  )
+```
+
+
+```{r}
+datos1 <- na.omit(datos1)
+datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
+  geom_density(
+    aes(
+      group = MSE,
+      colour = MSE,
+      fill = MSE
+    ),
+    alpha = 0.2
+  )
+```
 
 # Conclusiones
 
-Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, con una tasa de acierto buena. 
+Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, no obstante, su tasa de acierto no es excesivamente alta. Dado que la variable respuesta es binaria y el acierto no es muy alto, "a ojo" sería bastante factible clasificar.

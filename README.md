@@ -28,6 +28,8 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 | suicidios2019CCAA   | Regresión Lineal    | Lineal              |
 | ECV_microdatos      | Clasificación       | Reg. Logística      |
 | Partos              | Clasificación       | Reg. Logística      |
+| laboral             | Clasificación       | Reg. Logística      |
+| salud               | Clasificación       | Reg. Logística      |
 | VarCovid            | Cluster             | Jerárquico          |
 | VarCovid            | Cluster             | K-Means             |
 | VarCovid_provincias | Cluster             | Jerárquico          |
