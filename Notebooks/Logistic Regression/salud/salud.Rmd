@@ -1,5 +1,5 @@
 ---
-title: "Regresión Logística: ECV_microdatos"
+title: "Regresión Logística: salud"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "noviembre 2023"
@@ -39,22 +39,19 @@ En este cuaderno vamos a analizar el dataset llamado
 Este contiene microdatos relativos a la **Encuesta Nacional de Salud. Resultados**. Concretamente, datos correspondientes al año 2017. Las variables de interés son las siguientes:
 
   - **EDAD**: Identificación del adulto seleccionado: Edad.
-  - **SEXO**: Identificación del adulto seleccionado: Sexo.
+  - **SEXO**: Identificación del adulto seleccionado: Sexo. (1=Hombre, 2=Mujer)
   - **Altura**:  Altura en cm.
   - **Peso**: Peso en kg.
 
 
-El objetivo de este estudio será aplicar un Análisis **Discriminante** para intentar
-clasificar el sexo de la población a partir del resto de variables.
+El objetivo es mostrar en qué consiste una regresión logística y cómo llevarla a cabo en R.
 
 ```{r librerias, message=FALSE, warning= FALSE}
 # Librerias
 library(readxl) # Para leer los excels
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
-library(caret) # For data paratition
-library(MASS) # funciones lda() y qda()
-library(klaR) # partimat
+library(Epi) # Para la ROC curve
 ```
 
 Cargamos entonces el conjunto de datos:
@@ -68,92 +65,13 @@ datos <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/sa
 
 ## Descripción del trabajo a realizar
 
-**(Esto irá en la web de explica)** Se pretende hacer un Análisis
-de Discriminante empleando los procedimientos de LDA (Análsis de Discriminante Lineal) y  QDA (Análisis de Discriminante Cuadrático).
-
-  -   Hacer un análisis exploratorio. Ver si las variables separan bien las clases.
-  - Convertir a factor la variable respuesta.
-  - Realizar una partición de datos Train/Test.
-  -   Fijar semilla cuando se usen números aleatorios (para la reproductividad).
-  - Ejecutar algoritmos lda/qda y evaluar su bondad.
-
-
-
-# Análisis de Discrminante: LDA y QDA 
-
-## Introducción
-El análisis discriminante es una técnica estadística utilizada para clasificar observaciones en grupos o categorías predefinidas en función de un conjunto de variables predictoras.
-
-El objetivo principal es identificar las características o variables que mejor distinguen entre diferentes grupos conocidos. Es una técnica de **aprendizaje supervisado**, lo que significa que requiere un conjunto de datos etiquetado con información sobre las categorías o grupos a los que pertenecen las observaciones.
-
-
-
-El análisis discriminante se puede dividir en dos tipos principales:
-
-  - **Análisis Discriminante Lineal (LDA)**: LDA asume que las variables predictoras tienen una distribución normal y que las matrices de covarianza de las variables predictoras son iguales para todos los grupos. LDA busca un hiperplano (o límite de decisión) que maximice la distancia entre las medias de los grupos y minimice la varianza dentro de cada grupo.
-  Debido a la asunción de igual covarianzas, los **hiperplanos que separan las clases son lineales**.
-
-  - **Análisis Discriminante Cuadrático (QDA)**: QDA relaja la suposición de igualdad de matrices de covarianza y permite que cada grupo tenga su propia matriz de covarianza. Esto hace que QDA sea más flexible pero también requiere más datos para estimar las matrices de covarianza para cada grupo. Los hiperplanos que separan las clases son **cuadráticos**.
-
-
-
-
-
-
-
-
-
-## Análisis Exploratorio (EDA[^1])
-
-[^1]: EDA viene del Inglés *Exploratory Data Analysis* y son los pasos
-    relativos en los que se exploran las variables para tener una idea
-    de que forma toma el dataset.
-
-
-
-Veamos un resumen de los datos y si hay algún NA para quitarlo/imputarlo. 
-```{r}
-datos$Edad  <- as.numeric(datos$Edad)
-datos$Altura  <- as.numeric(datos$Altura )
-datos$Peso  <- as.numeric(datos$Peso)
-datos$Sexo <- ifelse(datos$Sexo=="1","0","1")
-datos$Sexo <- as.factor(datos$Sexo)
-summary(datos)
-sum(is.na(datos))
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Descripción del trabajo a realizar
-
-**(Esto irá en la web de explica)** Se pretende hacer una regresión
-logística que clasifique la variable respuesta *MSE* - Mejora de la Situación Ecnonómica del encuestado respecto a su adolescencia en casa- en función de varios predictores, tanto continuos (*Ano_Nacimiento*) como categóricos (*Estado_civil*, *Nivel_Estudios*).
+**(Esto irá en la web de explica)** Se pretende hacer una regresión logística que clasifique la variable respuesta *Sexo* en función de varios predictores, todos ellos continuos: *Edad*, *Altura*, *Peso*.
 
   - Hacer un análisis exploratorio.
   - **IMPORTANTE**: Convertir a factor las variables que lo sean.
   - Plantear diversos modelos según variables incluidas.
   - Compararlos con ANOVA y ROC CURVE.
-  - Para el modelo seleccionado, explicar los coeficientes, odds ratio,... 
+  - Para el modelo seleccionado, explicar los coeficientes, odds ratio,…
 
 
 # Análisis Exploratorio (EDA[^1])
@@ -168,6 +86,20 @@ ejecutar el resto del código del trabajo:
 ```{r librerias2 }
 library(dplyr) # Para tratamiento de dataframes
 library(ggplot2) # Nice plots
+```
+
+```{r porcentaje,out.width="50%",echo=FALSE}
+# Creamos un gráfico de quesito o de sectores para ver qué proporción de personas ha mejorado su situación económica:
+
+
+datos_quesito <- c(nrow(filter(datos, Sexo == "1")), nrow(filter(datos, Sexo == "2")))
+etiquetas <- c("Hombre", "Mujer")
+
+porcentajes <- paste0(round(datos_quesito / sum(datos_quesito) * 100, 1), "%")
+colores <- c("lightgreen", "lightcoral")
+
+pie(datos_quesito, labels = porcentajes, col = colores, radius = 1.05, cex = 1)
+legend("topleft", etiquetas, cex = 0.7, fill = colores)
 ```
 
 # Clasificación: Regresión Logística
@@ -209,12 +141,9 @@ A continuación, para simplificar un poco las cosas, consideremos el
 modelo de regresión logística más sencillo: regresión logística binaria
 simple (una sola covariable):
 
-\[] \begin{align}
+\[
 P(Y=1)=\frac{1}{1+e^{-(\beta_0 + \beta_1X_1 + ϵ)}}
-\end{align}
 \]
-
-
 
 
 La interpretación de esta función es muy similar a la de una regresión
@@ -225,25 +154,6 @@ curva, es decir, cuán inclinada está en su parte central (cuanto más
 inclinada, mayor capacidad de discriminar entre los dos valores de la
 variable dependiente).
 
-
-```{r,echo=FALSE,out.width="50%"}
-knitr::include_graphics("images/descarga.png")
-```
-
-
-
-Esta imagen, sacada del libro *Análisis de datos en Ciencias Sociales y
-de la Salud III (Pardo et al., 2012)* muestra tres regresiones logísticas
-con el mismo coeficiente , pero distinto poder discriminante (diferente
-): la curva de la izquierda tendría un poder de discriminación perfecto,
-mientras que la de la derecha no discrimina nada (la del medio sería un
-caso intermedio entre los dos extremos). Por lo tanto, podemos decir que
-una covariable será mejor predictora cuanto mayor sea el coeficiente $\beta$ que
-genere. [Aclaración: en la imagen, $\pi_1 = P(Y=1)$]
-
-Si estuviésemos ante una regresión logística múltiple, cada variable
-independiente recibiría una ponderación proporcional a su capacidad para
-predecir Y.
 
 ## Bondad de Ajuste e Interpretación Modelo
 
@@ -306,15 +216,37 @@ Es una medida de bondad porque evalúa qué tan bien puede discriminar un modelo
 
 ## Formulación
 
-**IMPORTANTE**: Convertir a factor las variables que tengan que ser tratadas como tal, de lo contrario R las tratará como numéricas. Además, la variable respuesta debe tener los niveles codificados como $0$ y $1$ para poder usar la funcion `glm`.
+**IMPORTANTE**: Convertir a factor las variables que tengan que ser tratadas como tal, de lo contrario R las tratará como numéricas. Además, la variable respuesta debe tener los niveles codificados como $0$ y $1$ para poder usar la funcion `glm`. El resto de variables convertirlas a numéricas en caso de que aplique.
+
+```{r}
+datos$Edad <- as.numeric(datos$Edad)
+datos$Altura <- as.numeric(datos$Altura)
+datos$Peso <- as.numeric(datos$Peso)
+
+# Pasar factores a 0=Hombre y 1=Mujer
+datos$Sexo <- ifelse(datos$Sexo == "1", "0", "1")
+datos$Sexo <- as.factor(datos$Sexo)
+
+# Ver resumen de datos y ver si hay NA
+summary(datos)
+sum(is.na(datos))
+
+datos <- na.omit(datos)
+```
+
+
+Como hemos visto que había na's en el conjunto de datos, los quitamos para que no haya posibles problemas (eliminamos esas observaciones).
+
+Vemos que si hay algun 
+
 
 
 
 A continuación presentamos tres posibles modelos y posteriormente elegiremos uno de ellos.
 
-  - **lmod1** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica).
-  - **lmod2** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica) y el Estado_civil (categórica).
-  - **lmod3** : Queremos clasificar la MSE en función del Año de Nacimiento de la persona (numérica), el Estado_civil (categórica) y el Nivel de Estudios (categórica) y .
+  - **lmod1** : Queremos clasificar la Sexo en función de la edad de la persona (numérica).
+  - **lmod2** : Queremos clasificar la Sexo en función de la edad de la persona (numérica) y el Altura (numérica).
+  - **lmod3** : Queremos clasificar la Sexo en función de la edad de la persona (numérica), el Altura (numérica) y el Peso (numérica).
 
 
 ```{r modelos}
@@ -327,42 +259,39 @@ lmod2 <- glm(formula = Sexo ~ Edad + Altura, family = binomial(link = logit), da
 summary(lmod2)
 
 # lmod3
-lmod3 <- glm(formula = Sexo ~ Edad + Altura+ Peso, family = binomial(link = logit), data = datos)
+lmod3 <- glm(formula = Sexo ~ Edad + Altura + Peso, family = binomial(link = logit), data = datos)
 summary(lmod3)
 ```
 
-En este caso, el Modelo 2 tiene el **AIC** más bajo, lo que sugiere que podría ser el mejor ajuste entre los tres modelos. Sin embargo, es importante considerar otros aspectos y realizar pruebas adicionales si es necesario para validar el modelo seleccionado. Por otro lado, en términos de la **Deviance** podemos ver cosas parecidas. 
-Vemos que al *lmod1* si le añadimos la variable *Estado_civil*, la residual variance disminuye lo que parece indicar que está variable es significante. Sin embargo, cuando le añadimos la variable *Nivel_Estudios*, la dismunición de la deviance es muy baja por lo que no parece que sea del todo relevante en función del resto de variables.  
+En este caso, el Modelo 3 tiene el **AIC** más bajo, lo que sugiere que podría ser el mejor ajuste entre los tres modelos. Sin embargo, es importante considerar otros aspectos y realizar pruebas adicionales si es necesario para validar el modelo seleccionado. Por otro lado, en términos de la **Deviance** podemos ver cosas parecidas. 
 
 
-Para este modelo vamos a calcular la matriz de confusión y el área ROC.
+
+Para este modelo vamos a calcular la matriz de confusión y el área ROC. Hemos calculado la matriz de confusión utilizando un **threshold** de 0.51. Es decir, si hay mas de un 0.51 de probabilidad de que una observación pertenezca a la clase 1 (Mujer), entonces lo clasficamos como tal.
+
+Luego veremos el valor óptimo para este threshold.
 
 ```{r, eval=FALSE}
 # confusion matrices
-predicted2 <- predict(lmod2, data.frame(Edad = datos$Edad, Altura = datos$Altura, Peso=datos$Peso), type = "response")
+predicted2 <- predict(lmod3, data.frame(Edad = datos$Edad, Altura = datos$Altura, Peso = datos$Peso), type = "response")
 library(caret)
-confusionMatrix(data = as.factor(ifelse(predicted2 > 0.51, 1, 0)), reference = datos$Sexo)
+confusionMatrix(data = as.factor(ifelse(predicted2 > 0.5, 1, 0)), reference = datos$Sexo, positive = "1")
 ```
 
-
+Realicemos ahora la curva ROC con la función ROC del paquete `Epi`.
 ```{r}
-library(Epi)
-# The ROC function
-
-# lmod2
-ROC(form = Sexo ~ Edad + Altura+ Peso, data = datos, plot = "ROC", lwd = 3, cex = 1.5)
-
+ROC(form = Sexo ~ Edad + Altura + Peso, data = datos, plot = "ROC", lwd = 3, cex = 1.5)
 ```
-Observamos una Especifidad del 50% y una Sensibilidad del 62%. Esto quiere decir que nuestro modelo es mejor evitando falsos negativos, que falsos positivos Es decir, que es peor evitando que digamos que la calidad de vida de una persona ha mejorado cuando realmente no lo ha hecho, que al revés.  
+Observamos una Especifidad del 82% y una Sensibilidad del 84%. Esto quiere decir que nuestro modelo es mejor evitando falsos negativos, que falsos positivos Es decir, que es mejor evitando clasificar a alguien como hombre cuando es mujer, que al revés. 
 
 
-Destacar que el elemtno **Ir.eta** que aparece arriba, es el punto de corte de la probabilidad. Es decir, si nuestra regresión logística predice que hay una probabilidad mayor de $0.179$ de que haya mejorado la calidad de vida, nosotros lo clasificamos como que efectivamente ha mejorado y si es menor, lo clasificamos como que no.
+Destacar que el elemtno **Ir.eta** que aparece arriba, es el punto de corte óptimo (**threshold óptimo**) de la probabilidad. Es decir, si nuestra regresión logística predice que hay una probabilidad mayor de $0.516$ de que una observación sea mujer, entonces la clasificaremos como tal.
 
 
 
 ## Otras consideraciones
 
-Podemos usar el presente modelo para predecir la probabilidad de cesárea en función de las variables predictoras de nuevas observaciones. 
+Podemos usar el presente modelo para predecir la probabilidad de ser mujer en función de las variables predictoras de nuevas observaciones. 
 
 ## Interpretación coeficientes
 
@@ -370,52 +299,48 @@ Podemos usar el presente modelo para predecir la probabilidad de cesárea en fun
 Vamos a volver a sacar el summary del modelo para proceder a explicar todo bien de nuevo.
 
 ```{r}
-summary(lmod2)
+summary(lmod3)
 ```
 
 
-  - **Ano_Nacimiento**: Por cada incremento unitario en el año de nacimiento, el logaritmo de odds de éxito en MSE disminuye aproximadamente en 0.026, manteniendo constante el Estado Civil. 
-
-  - **Estado_civil1**: Cuando el estado civil cambia de 0 (soltero) a 1 (casado), el logaritmo de odds de éxito en MSE aumenta aproximadamente en 0.265, manteniendo constante el año de nacimiento.
-
-
-**Interpretación coeficiente Año Nacimiento** 
-
-El rango del año de nacimiento abarca desde 1960 hasta 1993. La disminución en el logaritmo de odds de éxito en la mejora de la situación económica por cada año de aumento en el año de nacimiento, implica una **disminución en la probabilidad de asociar esa persona a una mejroa de la calidad de vida**. Esto puede asociarse con el contexto histórico y socioeconómico de esas generaciones.
-
-Las **personas nacidas en la década de 1960** provienen de un contexto en el que sus padres experimentaron condiciones económicas precarias, con la transición al estado de bienestar en esa época. A medida que avanzaron en su vida adulta, se beneficiaron considerablemente de ese cambio y disfrutaron de una mejor calidad de vida en comparación con su infancia.
-
-Sin embargo, para las **generaciones más recientes**, nacidas en los años 80 y 90, ya crecieron en un entorno más establecido de bienestar. Es probable que no hayan experimentado cambios tan significativos en su calidad de vida a medida que envejecían. De hecho, es posible que en los últimos años, hayan presenciado un deterioro en las condiciones económicas, lo que explicaría la **tendencia a una disminución en el logaritmo de odds de éxito en la mejora de la situación económica.**
+  - **Edad**: Por cada incremento unitario en la edad, el logaritmo de odds de éxito en Sexo disminuye aproximadamente en 0.027, manteniendo constante el resto de variables. 
+  
+  - **Altura**: Por cada incremento unitario en la altura, el logaritmo de odds de éxito en Sexo disminuye aproximadamente en 0.25, manteniendo constante el resto de variables. 
+    
+    - **Peso**: Por cada incremento unitario en el peso, el logaritmo de odds de éxito en Sexo disminuye aproximadamente en 0.039, manteniendo constante el resto de variables. 
 
 
-**Interpretación coeficiente Estado Civil** 
+**Interpretación coeficiente Edad** 
 
-El **coeficiente positivo para el estado civil**, donde 0 representa soltero y 1 casado, sugiere que las personas casadas tienen una tendencia más positiva hacia la mejora de su situación económica en comparación con las personas solteras. Esto puede deberse a varios factores.
+Vemos que este coeficiente es relativamente pequeño, con lo cual no parece tener impacto en el $Sexo$ de la persona. Esto tiene sentido ya que el número de niños/niñas nacidos cada año tiende al 50%-50% con lo cual no debería haber más elementos de una subpoblación conforme aumente/disminuya la edad.
 
-En contextos culturales y económicos, las personas casadas pueden tener una mayor estabilidad financiera y apoyo mutuo, lo que les permite tener un respaldo emocional y económico más sólido para enfrentar desafíos financieros. Además, el matrimonio suele implicar compartir responsabilidades financieras y planificación conjunta, lo que puede conducir a decisiones más estables y a largo plazo en términos económicos.
-
-No obstante, esto es algo muy generalizado que puede que no sea así ya que la situación económica depende de muchos factores.
+Es verdad, que conforme aumenta la edad, la mortalidad es más grave en hombres, pero en ningún caso para producir tantas defunciones como para posibilitar la discriminación del Sexo en función de la edad.
 
 
 
 
-## Odds Ratio
+**Interpretación coeficiente Peso** 
+
+El **coeficiente para Peso**, tiene un valor negativo. Esto implica que la probablidad de clasificar a una observación como mujer disminuye conforme aumenta la variable Peso (manteniendo el resto de variables constantes). Esto parece razonable ya que dentro de un mismo grupo de edad, incluso de altura, los hombres tienden generalmente a ser más corpulentos que las mujeres y por tnato a pesar más. De todas maneras sería la combinación Peso/Altura la que nos ayudaría a discriminar bien.
+
+
+**Interpretación coeficiente Altura** 
+
+El **coeficiente para Altura**, tiene un valor negativo. Esto implica que la probablidad de clasificar a una observación como mujer disminuye conforme aumenta la variable altura (manteniendo el resto de variables constantes). Esto parece razonable ya que dentro de un mismo grupo de edad, incluso de peso, los hombres tienden generalmente a ser más altos que las mujeres. De todas maneras sería la combinación Peso/Altura la que nos ayudaría a discriminar bien.
+
+
 
 
 
 
 ```{r}
-library("MASS")
-lda.class.Iris <- lda(MSE ~ Ano_Nacimiento, datos1)
-library("klaR")
-partimat(MSE ~ Ano_Nacimiento + Factor_de_elevacion, datos1, method = "lda")
-
-datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
+datos <- na.omit(datos)
+datos %>% ggplot(aes(x = Peso)) +
   geom_density(
     aes(
-      group = MSE,
-      colour = MSE,
-      fill = MSE
+      group = Sexo,
+      colour = Sexo,
+      fill = Sexo
     ),
     alpha = 0.2
   )
@@ -423,13 +348,13 @@ datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
 
 
 ```{r}
-datos1 <- na.omit(datos1)
-datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
+datos <- na.omit(datos)
+datos %>% ggplot(aes(x = Altura)) +
   geom_density(
     aes(
-      group = MSE,
-      colour = MSE,
-      fill = MSE
+      group = Sexo,
+      colour = Sexo,
+      fill = Sexo
     ),
     alpha = 0.2
   )
@@ -437,4 +362,4 @@ datos1 %>% ggplot(aes(x = Ano_Nacimiento)) +
 
 # Conclusiones
 
-Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, no obstante, su tasa de acierto no es excesivamente alta. Dado que la variable respuesta es binaria y el acierto no es muy alto, "a ojo" sería bastante factible clasificar.
+Este modelo de regresión logística parece haber pasado todos los supuestos de dicha regresión, no obstante, con muy buenos valores en las métricas. Sería posible usarlo para clasificar en la vida real.
