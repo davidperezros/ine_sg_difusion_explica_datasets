@@ -25,6 +25,8 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 | Dataset  (*.xlsx*)  | Técnica Estadística | Descripción         |
 |---------------------|---------------------|---------------------|
 | IMCV_reg            | Regresión           | Lineal              |
+| hogares_reg         | Regresión           | Lineal              |
+| salud_reg           | Regresión           | Lineal              |
 | suicidios2019CCAA   | Regresión Lineal    | Lineal              |
 | ECV_microdatos      | Clasificación       | Reg. Logística      |
 | Partos              | Clasificación       | Reg. Logística      |
@@ -66,7 +68,7 @@ Cualquier duda o comentario sobre el contenido de este servidor debe dirigirse a
 
 # Créditos
 
-Nombrar a Juan Cervigón y su repositorios de GitHub https://github.com/JuanCervigon/Cuadernos-INE y  https://github.com/JuanCervigon/Conjuntos-de-datos-INE, los cuales se han tomado como pilares iniciales para elaborar este proyecto. Se ha realizado una tarea de homogenización de todos datasets encontrados ahí, así como de las técnicas estadísticas usadas junto con los formatos de salida. 
+Nombrar a Juan Cervigón y su repositorios de GitHub https://github.com/JuanCervigon/Cuadernos-INE y  https://github.com/JuanCervigon/Conjuntos-de-datos-INE, los cuales se han tomado como pilares iniciales para elaborar este proyecto. Se ha realizado una tarea de homogeneización de todos datasets encontrados ahí, así como de las técnicas estadísticas usadas junto con los formatos de salida. 
 
 Por último el repositorio actual,
 
