@@ -1,14 +1,14 @@
 ---
 title: "Series Temporales - ARIMA: navarra"
 author: "David Pérez Ros"
+subtitle: "INE-S.G. Difusión"
 date: "febrero 2024"
 output:
   md_document:
     variant: markdown_github
-  rmdformatss::readthedown:
-    code_folding: show
-    cards: yes
-subtitle: "INE-S.G. Difusión"
+  rmdformats::readthedown:
+      code_folding: show
+      cards : TRUE
 editor_options:
   markdown:
     wrap: 72
@@ -260,22 +260,33 @@ En el gráfico de PACF vemos que hay  3 barras que se salen  del límite deseado
   arima_model1b <- arima(tss2, order = c(2, 3, 1))
   arima_model2b <- arima(tss2, order = c(1, 1, 0))
 # Predicciones utilizando arima_model1
-pred1 <- predict(arima_model1b, n.ahead = 6)$pred
+pred1 <- predict(arima_model1b, n.ahead = 6)
 
 # Predicciones utilizando arima_model2
-pred2 <- predict(arima_model2b, n.ahead = 6)$pred
+pred2 <- predict(arima_model2b, n.ahead = 6)
 
+upper1 <- pred1$pred + 1.96*pred1$se
+lower1 <- pred1$pred - 1.96*pred1$se
+upper2 <- pred2$pred + 1.96*pred2$se
+lower2 <- pred2$pred - 1.96*pred2$se
 # Gráfico con los datos originales y las predicciones de los modelos
-plot(tss, xlim = c(1971, 2021 + 5), ylim = c(min(tss, pred1, pred2), max(tss, pred1, pred2)),
+plot(tss, xlim = c(1971, 2021 + 5), ylim = c(min(tss, pred1$pred, pred2$pred), max(tss, pred1$pred, pred2$pred)),
      xlab = "Fecha", ylab = "Valor", main = "Comparación de Predicciones ARIMA")
 lines(tss, col = "blue", lwd = 2)  # Serie original en azul
-points(pred1, col = "red", pch = 16, cex = 0.5)  # Predicciones con arima_model1 en rojo
-points(pred2, col = "green", pch = 16, cex = 0.5)  # Predicciones con arima_model2 en verde
+points(pred1$pred, col = "red", pch = 16, cex = 0.5)  # Predicciones con arima_model1 en rojo
+points(pred2$pred, col = "green", pch = 16, cex = 0.5)  # Predicciones con arima_model2 en verde
 legend("bottomright", legend = c("Original", "ARIMA Modelo 1", "ARIMA Modelo 2"), col = c("blue", "red", "green"), lty = 1)
 
-
+lines(upper1, col="red", lty="solid")
+lines(lower1, col="red", lty="solid")
+lines(upper2, col="green", lty="solid")
+lines(lower2, col="green", lty="solid")
 ```
 
+```{r}
+autoplot(forecast(arima_model1b))
+
+```
 
 
 
