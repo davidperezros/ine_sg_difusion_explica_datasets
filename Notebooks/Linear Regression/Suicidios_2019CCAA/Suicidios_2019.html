@@ -1467,14 +1467,13 @@ $(x1,x2,…,xk) $ pueden afectar al número de suicidios <span class="math inlin
 <div id="descripción-del-trabajo-a-realizar" class="section level2">
 <h2>Descripción del trabajo a realizar</h2>
 <p><strong>(Esto irá en la web de explica)</strong> Se pretende hacer
-una regresión ineal que explique el índice total en función de las
-dimensiones (sin tener en centa la var. comunidad autónoma).</p>
+una regresión ineal que explique el número de suicpc en función del
+resto de variables que sean pertinentes.</p>
 <ul>
 <li>Hacer un análisis exploratorio. Ver que las variables que no son per
 cápita tienen una correlación muy altas y por tanto, no
 considerarlas.</li>
-<li>Plantear las hipótesis de una regresión (incluyendo todas
-variables).</li>
+<li>Plantear las hipótesis de una regresión.</li>
 <li>Analizar el modelo planteado y su ajuste de bondad.</li>
 <li>Comprobar hipótesis de regresión.</li>
 <li>Selección de variables.</li>
@@ -1501,7 +1500,7 @@ ejecutar el resto del código del trabajo:</p>
 no han ningún NA (missing value) en el dataset luego no será necesario
 realizar ninguna técnica para imputar los missing values o borrar
 observaciones.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>suicidios <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/Datasets/Datos/David/Nuevos/suicidios2019CCAA.xlsx&quot;</span>,<span class="at">sheet =</span> <span class="st">&quot;Datos&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>suicidios <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/suicidios2019CCAA.xlsx&quot;</span>,<span class="at">sheet =</span> <span class="st">&quot;Datos&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">anyNA</span>(suicidios)    <span class="co">#Any missing data </span></span></code></pre></div>
 <pre><code>## [1] FALSE</code></pre>
 <p>Realizando un <strong>resumen numérico</strong> vemos que todas las
@@ -1877,7 +1876,7 @@ es constante, condicionada a los predictores.</p></li>
 normalmente, es decir, <span class="math inline">\(\varepsilon_i \sim
 N(0,\sigma^2)\; \forall i\)</span>.</li>
 </ul>
-<p>Además hay algunas medidas indicadores como el <span class="math inline">\(R^2_adj\)</span> que indican la variabiliad de la
+<p>Además hay algunas medidas indicadores como el <span class="math inline">\(R^2\_adj\)</span> que indican la variabiliad de la
 variable respueta que es eescplicada por el modelo, siendo mejor el
 modelo cuanto más grande sea este valor.</p>
 </div>

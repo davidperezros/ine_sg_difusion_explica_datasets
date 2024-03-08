@@ -3,11 +3,9 @@ title: "Regresión Lineal: Sucidios"
 subtitle: 'INE-S.G. Difusión'
 author: "David Pérez Ros"
 date: "noviembre 2023"
-output: 
-  rmdformats::readthedown:
-      code_folding: hide
-      cards : TRUE
-      
+output:
+  md_document:
+    variant: markdown_github
 
 editor_options:
   markdown:
@@ -75,10 +73,10 @@ En este caso de uso, vamos a intentar explicar qué variables $(x1,x2,...,xk) $ 
 
 ## Descripción del trabajo a realizar
 
-**(Esto irá en la web de explica)** Se pretende hacer una regresión ineal que explique el índice total en función de las dimensiones (sin tener en centa la var. comunidad autónoma).
+**(Esto irá en la web de explica)** Se pretende hacer una regresión ineal que explique el número de suicpc en función del resto de variables que sean pertinentes.
 
   - Hacer un análisis exploratorio. Ver que las variables que no son per cápita tienen una correlación muy altas y por tanto, no considerarlas.
-  - Plantear las hipótesis de una regresión (incluyendo todas variables).
+  - Plantear las hipótesis de una regresión. 
   - Analizar el modelo planteado y su ajuste de bondad.
   - Comprobar hipótesis de regresión.
   - Selección de variables.
@@ -112,7 +110,7 @@ Ahora leemos los datos del excel correspondientes a la pestaña *"Datos"* y vemo
 
 
 ```{r datos}
-suicidios <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/David/Nuevos/suicidios2019CCAA.xlsx",sheet = "Datos")
+suicidios <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/suicidios2019CCAA.xlsx",sheet = "Datos")
 ```
 
 

@@ -27,7 +27,7 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 | IMCV_reg            | Regresión           | Lineal              |
 | salud_reg           | Regresión           | Lineal              |
 | suicidios2019CCAA   | Regresión           | Lineal              |
-| ECV_microdatos      | Clasificación       | Reg. Logística      |
+| ECV                 | Clasificación       | Reg. Logística      |
 | Partos              | Clasificación       | Reg. Logística      |
 | laboral             | Clasificación       | Reg. Logística      |
 | salud               | Clasificación       | Reg. Logística      |

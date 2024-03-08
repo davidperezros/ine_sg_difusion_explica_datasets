@@ -55,14 +55,13 @@ en España.
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer una regresión
-ineal que explique el índice total en función de las dimensiones (sin
-tener en centa la var. comunidad autónoma).
+ineal que explique el número de suicpc en función del resto de variables
+que sean pertinentes.
 
 -   Hacer un análisis exploratorio. Ver que las variables que no son per
     cápita tienen una correlación muy altas y por tanto, no
     considerarlas.
--   Plantear las hipótesis de una regresión (incluyendo todas
-    variables).
+-   Plantear las hipótesis de una regresión.
 -   Analizar el modelo planteado y su ajuste de bondad.
 -   Comprobar hipótesis de regresión.
 -   Selección de variables.
@@ -92,7 +91,7 @@ y vemos si hay algún NA en nuestro dataset. Vemos que no han ningún NA
 técnica para imputar los missing values o borrar observaciones.
 
 ``` r
-suicidios <- read_excel("/Users/davpero/Library/CloudStorage/GoogleDrive-davidperez202223@gmail.com/Mi unidad/4th Quarter/INE/2Datasets/Datos/David/Nuevos/suicidios2019CCAA.xlsx",sheet = "Datos")
+suicidios <- read_excel("/Users/davpero/ine_sg_difusion_explica_datasets/Datasets/suicidios2019CCAA.xlsx",sheet = "Datos")
 ```
 
 ``` r

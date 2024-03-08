@@ -44,12 +44,10 @@ si el resto de variables ayudan a estimar el Peso.
 ## Descripción del trabajo a realizar
 
 **(Esto irá en la web de explica)** Se pretende hacer una regresión
-lineal que explique el índice total en función de las dimensiones (sin
-tener en centa la var. comunidad autónoma).
+lineal que explique el Peso en función del resto de las variables.
 
 -   Hacer un análisis exploratorio.
 -   Analizar el modelo planteado y su ajuste de bondad.
--   Comprobar hipótesis de regresión.
 -   Hacer una conclusión.
 
 # Análisis Exploratorio (EDA[1])

@@ -59,6 +59,7 @@ data$H<-data$`Pobl. Hombres`
 data$M<-data$`Pobl. Mujeres`
 
 
+
 ```
 
 
@@ -138,6 +139,8 @@ Vamos a cargar los datos en un obejto adecuado para su análisis
 #navarra
    tss <- stats::ts(rev(data$Total), start = 1971, frequency = 2)
 
+
+plot(decompose(tss))
 ```
 
 **Análisis Descriptivo:**
