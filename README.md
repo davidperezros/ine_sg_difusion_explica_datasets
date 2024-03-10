@@ -47,6 +47,13 @@ En las siguientes líneas podemos ver un esquema relacionando los datasets prese
 | pisa_factorial      | Red. Dimension      | Análisis Factorial  |
 | laboral             |Clasifiación         | Análisis Discriminante |
 | salud               |Clasifiación         | Análisis Discriminante |
+| navarra_series      |Series Temporales    | ARIMA               |
+| madrid_series       |Series Temporales    | ARIMA               |
+| ipc_series          |Series Temporales    | ARIMA               |
+| ipc_series          |Holt Winters         | ARIMA               |
+
+
+
 
 
 
